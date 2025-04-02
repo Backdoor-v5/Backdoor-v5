@@ -39,6 +39,38 @@ extension ModelServerIntegrationViewController {
         updateStatusLabel(text: statusText, isError: isError)
     }
     
+    /// Updates the UI status label with the provided text and styling
+    func updateStatusLabel(text: String, isError: Bool) {
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self.unsafelyUnwrapped else { return }
+            
+            // Find the label by tag if it's not directly accessible
+            if let statusLabel = self.view.viewWithTag(1001) as? UILabel {
+                statusLabel.text = text
+                statusLabel.textColor = isError ? .systemRed : .systemGreen
+            } else {
+                // Create the label if it doesn't exist yet
+                let label = UILabel()
+                label.tag = 1001
+                label.text = text
+                label.textColor = isError ? .systemRed : .systemGreen
+                label.numberOfLines = 0
+                label.textAlignment = .center
+                label.font = .systemFont(ofSize: 16, weight: .medium)
+                label.translatesAutoresizingMaskIntoConstraints = false
+                
+                self.view.addSubview(label)
+                
+                NSLayoutConstraint.activate([
+                    label.centerXAnchor.constraint(equalTo: self.view.centerXAnchor),
+                    label.topAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.topAnchor, constant: 16),
+                    label.leadingAnchor.constraint(equalTo: self.view.leadingAnchor, constant: 20),
+                    label.trailingAnchor.constraint(equalTo: self.view.trailingAnchor, constant: -20)
+                ])
+            }
+        }
+    }
+    
     /// Safe wrapper for model uploads using proper async/await
     func uploadModelSafely(completion: @escaping (Bool, String) -> Void) {
         performAsyncSafely { [weak self] in
