@@ -1,0 +1,45 @@
+workflows:
+  create-new-release:
+    name: Create New Release
+    environment:
+      groups:
+        - github_credentials  # You'll need to configure this group in Codemagic UI with GITHUB_TOKEN
+      vars:
+        SCHEME: "backdoor (Release)"
+        CFLAGS: "-Onone"
+    triggering:
+      events:
+        - push  # Codemagic doesn't have exact equivalent to workflow_dispatch, using push as trigger
+      branch_patterns:
+        - pattern: "main"  # Adjust branch as needed
+    instance_type: mac_mini_m1  # Closest equivalent to macos-15
+    scripts:
+      - name: Install dependencies
+        script: | 
+          curl -LO https://github.com/ProcursusTeam/ldid/releases/download/v2.1.5-procursus7/ldid_macosx_x86_64
+          sudo install -m755 ldid_macosx_x86_64 /usr/local/bin/ldid
+          brew install 7zip gnu-sed
+
+      - name: Compile package
+        script: | 
+          mkdir upload
+          make package SCHEME="$SCHEME" CFLAGS="$CFLAGS"
+          mv packages/* upload/
+
+      - name: Get Version Number
+        script: |
+          VERSION=$( /usr/libexec/PlistBuddy -c "Print CFBundleShortVersionString" Payload/backdoor.app/Info.plist )
+          echo "export VERSION=$VERSION" >> $CM_ENV
+
+      - name: Setup files
+        script: |
+          mv upload/backdoor.ipa upload/backdoor_v${VERSION}.ipa
+          cp upload/backdoor_v${VERSION}.ipa upload/backdoor_v${VERSION}.tipa
+
+    publishing:
+      github:
+        # Requires GITHUB_TOKEN in environment variables
+        tag: v${VERSION}
+        release_notes: automatic  # Similar to generate_release_notes: true
+        artifacts:
+          - upload/*ipa
