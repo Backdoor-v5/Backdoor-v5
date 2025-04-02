@@ -121,23 +121,29 @@ let package = Package(
             ],
             path: ".",
             exclude: [
-                "README.md",
-                "LICENSE",
-                ".github",
-                ".git",
+                // Project files
                 "backdoor.xcodeproj",
                 "backdoor.xcworkspace",
-                "scripts",
+                
+                // Documentation
                 "FAQ.md",
                 "CODE_OF_CONDUCT.md",
-                ".swiftformat",
-                ".swiftlint.yml",
-                ".clang-format",
+                
+                // Tools and scripts
+                "scripts",
                 "Makefile",
                 "Clean",
                 "app-repo.json",
                 "fix_license_headers.sh",
-                "localization_changes.patch"
+                "localization_changes.patch",
+                
+                // Mixed language source files - handled specially
+                "Shared/Magic/openssl_tools.mm",
+                "Shared/Magic/openssl_tools.hpp",
+                "Shared/Magic/zsign",
+                
+                // Backup and temporary files
+                ".project_backup"
             ],
             swiftSettings: [
                 // Debug optimization settings
