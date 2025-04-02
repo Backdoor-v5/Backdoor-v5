@@ -5,30 +5,37 @@
 // Backdoor App Signer is proprietary software. You may not use, modify, or distribute it except as expressly permitted under the terms of the Proprietary Software License.
 
 import UIKit
-import SnapKit
-import Lottie
-import SwiftUIX
 
-// MARK: - SnapKit View Extensions
+// MARK: - UIView Extensions for AutoLayout
 extension UIView {
-    /// Set up constraints with SnapKit's cleaner syntax
-    /// - Parameter setup: Closure with constraints definition
-    func setupConstraints(_ setup: (ConstraintMaker) -> Void) {
-        self.snp.makeConstraints(setup)
+    /// Set up constraints with native AutoLayout
+    /// - Parameter constraints: Array of constraints to activate
+    func setupConstraints(_ constraints: [NSLayoutConstraint]) {
+        self.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate(constraints)
     }
     
-    /// Update constraints with SnapKit's cleaner syntax
-    /// - Parameter setup: Closure with constraints definition
-    func updateConstraints(_ setup: (ConstraintMaker) -> Void) {
-        self.snp.updateConstraints(setup)
+    /// Set up constraints with a closure
+    /// - Parameter setup: Closure that returns constraints to activate
+    func setupConstraints(_ setup: (UIView) -> [NSLayoutConstraint]) {
+        self.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate(setup(self))
     }
     
-    /// Create a stack view with SnapKit constraints
+    /// Update existing constraints
+    /// - Parameter update: Closure that performs constraint updates
+    func updateConstraints(_ update: () -> Void) {
+        update()
+        self.layoutIfNeeded()
+    }
+    
+    /// Create a stack view with standard configuration
     /// - Parameters:
     ///   - axis: Axis for the stack view
     ///   - spacing: Spacing between items
     ///   - views: Views to add to the stack
     ///   - insets: Insets to apply to the stack view
+    /// - Returns: Configured UIStackView
     static func createStack(axis: NSLayoutConstraint.Axis,
                            spacing: CGFloat = 8,
                            views: [UIView],
@@ -44,38 +51,57 @@ extension UIView {
 
 // MARK: - Animation Helper
 class AnimationHelper {
-    /// Add a Lottie animation to a view
+    /// Add an animated icon to a view (replacement for Lottie)
     /// - Parameters:
-    ///   - name: Animation name (JSON file without extension)
+    ///   - systemName: SF Symbol name
     ///   - view: Parent view to add the animation to
-    ///   - loopMode: Animation loop mode
+    ///   - loopMode: Animation loop mode (continuous, once, etc.)
     ///   - size: Size for the animation view
-    /// - Returns: The configured LottieAnimationView
-    static func addAnimation(name: String, to view: UIView,
-                            loopMode: LottieLoopMode = .loop,
-                            size: CGSize? = nil) -> LottieAnimationView {
-        // Create animation view from JSON file
-        let animationView = LottieAnimationView(name: name)
-        animationView.loopMode = loopMode
-        animationView.contentMode = .scaleAspectFit
-        
-        // Add to parent view
-        view.addSubview(animationView)
-        
-        // Setup constraints with SnapKit
-        animationView.snp.makeConstraints { make in
-            if let size = size {
-                make.size.equalTo(size)
-                make.center.equalToSuperview()
-            } else {
-                make.edges.equalToSuperview()
-            }
+    /// - Returns: The configured UIImageView
+    static func addAnimation(systemName: String, to view: UIView,
+                            loopMode: UIView.AnimationRepeatCount = .infinity,
+                            size: CGSize? = nil) -> UIImageView {
+        // Create image view with SF Symbol
+        let imageView = UIImageView()
+        if let image = UIImage(systemName: systemName) {
+            imageView.image = image
+        } else {
+            // Fallback icon if SF Symbol not available
+            imageView.backgroundColor = .systemBlue.withAlphaComponent(0.2)
+            imageView.layer.cornerRadius = (size?.width ?? 50) / 2
         }
         
-        // Start playing animation
-        animationView.play()
+        imageView.tintColor = .systemBlue
+        imageView.contentMode = .scaleAspectFit
+        imageView.translatesAutoresizingMaskIntoConstraints = false
         
-        return animationView
+        // Add to parent view
+        view.addSubview(imageView)
+        
+        // Setup constraints with native AutoLayout
+        if let size = size {
+            NSLayoutConstraint.activate([
+                imageView.widthAnchor.constraint(equalToConstant: size.width),
+                imageView.heightAnchor.constraint(equalToConstant: size.height),
+                imageView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+                imageView.centerYAnchor.constraint(equalTo: view.centerYAnchor)
+            ])
+        } else {
+            NSLayoutConstraint.activate([
+                imageView.topAnchor.constraint(equalTo: view.topAnchor),
+                imageView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+                imageView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+                imageView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
+            ])
+        }
+        
+        // Add animation
+        let repeatCount: Float = (loopMode == .infinity) ? .infinity : 1
+        UIView.animate(withDuration: 1.5, delay: 0, options: [.autoreverse, .repeat, .curveEaseInOut], animations: {
+            imageView.transform = CGAffineTransform(scaleX: 1.2, y: 1.2)
+        }, completion: nil)
+        
+        return imageView
     }
     
     /// Show an animated loading indicator
@@ -87,49 +113,47 @@ class AnimationHelper {
         // Create container for the loader
         let container = UIView()
         container.backgroundColor = UIColor.black.withAlphaComponent(0.3)
+        container.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(container)
         
         // Set constraints for full screen
-        container.snp.makeConstraints { make in
-            make.edges.equalToSuperview()
-        }
+        NSLayoutConstraint.activate([
+            container.topAnchor.constraint(equalTo: view.topAnchor),
+            container.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            container.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            container.bottomAnchor.constraint(equalTo: view.bottomAnchor)
+        ])
         
         // Create content container with blur effect
         let blurEffect = UIBlurEffect(style: .systemMaterial)
         let contentContainer = UIVisualEffectView(effect: blurEffect)
         contentContainer.layer.cornerRadius = 16
         contentContainer.clipsToBounds = true
+        contentContainer.translatesAutoresizingMaskIntoConstraints = false
         container.addSubview(contentContainer)
         
         // Set up constraints for the content container
-        contentContainer.snp.makeConstraints { make in
-            make.center.equalToSuperview()
-            make.width.equalTo(200)
-            if message != nil {
-                make.height.equalTo(200)
-            } else {
-                make.height.equalTo(150)
-            }
-        }
+        NSLayoutConstraint.activate([
+            contentContainer.centerXAnchor.constraint(equalTo: container.centerXAnchor),
+            contentContainer.centerYAnchor.constraint(equalTo: container.centerYAnchor),
+            contentContainer.widthAnchor.constraint(equalToConstant: 200),
+            contentContainer.heightAnchor.constraint(equalToConstant: message != nil ? 200 : 150)
+        ])
         
-        // Add animation to the content container
-        let animationView = LottieAnimationView(name: "loading")
-        animationView.loopMode = .loop
-        contentContainer.contentView.addSubview(animationView)
+        // Add activity indicator to the content container
+        let activityIndicator = UIActivityIndicatorView(style: .large)
+        activityIndicator.startAnimating()
+        activityIndicator.translatesAutoresizingMaskIntoConstraints = false
+        contentContainer.contentView.addSubview(activityIndicator)
         
-        // Set up animation constraints
-        animationView.snp.makeConstraints { make in
-            make.centerX.equalToSuperview()
-            if message != nil {
-                make.centerY.equalToSuperview().offset(-20)
-            } else {
-                make.centerY.equalToSuperview()
-            }
-            make.width.height.equalTo(100)
-        }
-        
-        // Start the animation
-        animationView.play()
+        // Set up activity indicator constraints
+        NSLayoutConstraint.activate([
+            activityIndicator.centerXAnchor.constraint(equalTo: contentContainer.contentView.centerXAnchor),
+            activityIndicator.centerYAnchor.constraint(equalTo: contentContainer.contentView.centerYAnchor, 
+                                                     constant: message != nil ? -20 : 0),
+            activityIndicator.widthAnchor.constraint(equalToConstant: 50),
+            activityIndicator.heightAnchor.constraint(equalToConstant: 50)
+        ])
         
         // Add message label if provided
         if let message = message {
@@ -138,14 +162,16 @@ class AnimationHelper {
             label.textAlignment = .center
             label.font = UIFont.systemFont(ofSize: 16, weight: .medium)
             label.textColor = .label
+            label.translatesAutoresizingMaskIntoConstraints = false
             contentContainer.contentView.addSubview(label)
             
             // Set up label constraints
-            label.snp.makeConstraints { make in
-                make.centerX.equalToSuperview()
-                make.top.equalTo(animationView.snp.bottom).offset(10)
-                make.left.right.equalToSuperview().inset(16)
-            }
+            NSLayoutConstraint.activate([
+                label.centerXAnchor.constraint(equalTo: contentContainer.contentView.centerXAnchor),
+                label.topAnchor.constraint(equalTo: activityIndicator.bottomAnchor, constant: 20),
+                label.leadingAnchor.constraint(equalTo: contentContainer.contentView.leadingAnchor, constant: 16),
+                label.trailingAnchor.constraint(equalTo: contentContainer.contentView.trailingAnchor, constant: -16)
+            ])
         }
         
         return container
@@ -190,7 +216,6 @@ class ElegantUIComponents {
         
         // Ensure the gradient is applied after layout
         button.layer.insertSublayer(gradientLayer, at: 0)
-        button.layoutIfNeeded()
         
         // Add shadow
         button.layer.shadowColor = UIColor.black.cgColor
@@ -199,8 +224,9 @@ class ElegantUIComponents {
         button.layer.shadowRadius = 4
         button.layer.masksToBounds = false
         
-        // Ensure gradient covers the button
-        button.layer.layoutSublayers()
+        // Update gradient frame when layout changes
+        button.layoutIfNeeded()
+        gradientLayer.frame = button.bounds
         
         return button
     }
@@ -244,380 +270,39 @@ class ElegantUIComponents {
         let textField = UITextField()
         textField.placeholder = placeholder
         textField.borderStyle = .none
+        textField.translatesAutoresizingMaskIntoConstraints = false
         container.addSubview(textField)
         
-        textField.snp.makeConstraints { make in
-            make.edges.equalToSuperview().inset(UIEdgeInsets(top: 12, left: 16, bottom: 12, right: 16))
-        }
+        NSLayoutConstraint.activate([
+            textField.topAnchor.constraint(equalTo: container.topAnchor, constant: 12),
+            textField.leadingAnchor.constraint(equalTo: container.leadingAnchor, constant: 16),
+            textField.trailingAnchor.constraint(equalTo: container.trailingAnchor, constant: -16),
+            textField.bottomAnchor.constraint(equalTo: container.bottomAnchor, constant: -12)
+        ])
         
         return container
     }
 }
 
-// MARK: - S# Create a demo view controller to show the new dependencies in action
-cat > iOS/Views/Demo/EnhancedDependenciesViewController.swift << 'EOF'
-// Proprietary Software License Version 1.0
-//
-// Copyright (C) 2025 BDG
-//
-// Backdoor App Signer is proprietary software. You may not use, modify, or distribute it except as expressly permitted under the terms of the Proprietary Software License.
-
-import UIKit
-import SwiftUI
-import Lottie
-import SnapKit
-import CryptoSwift
-import Moya
-import SwiftUIX
-
-/// Demo view controller showing the usage of the new dependencies
-class EnhancedDependenciesViewController: UIViewController {
-    
-    // UI Elements
-    private let scrollView = UIScrollView()
-    private let contentView = UIView()
-    private let titleLabel = UILabel()
-    private let cryptoExampleButton = UIButton(type: .system)
-    private let uiExampleButton = UIButton(type: .system)
-    private let networkExampleButton = UIButton(type: .system)
-    private let resourceExampleButton = UIButton(type: .system)
-    private let swiftuiDemoButton = UIButton(type: .system)
-    
-    // Animation container
-    private var animationContainer: UIView?
-    private var animationView: LottieAnimationView?
-    
-    override func viewDidLoad() {
-        super.viewDidLoad()
+/// Extension to define animation repeat options
+extension UIView {
+    enum AnimationRepeatCount {
+        case once
+        case finite(count: Int)
+        case infinity
         
-        title = "Enhanced Dependencies"
-        view.backgroundColor = .systemBackground
-        
-        setupUI()
-    }
-    
-    private func setupUI() {
-        // Set up scroll view
-        view.addSubview(scrollView)
-        scrollView.snp.makeConstraints { make in
-            make.edges.equalToSuperview()
-        }
-        
-        // Add content view to scroll view
-        scrollView.addSubview(contentView)
-        contentView.snp.makeConstraints { make in
-            make.edges.equalToSuperview()
-            make.width.equalToSuperview()
-            make.height.greaterThanOrEqualToSuperview()
-        }
-        
-        // Set up title label
-        titleLabel.text = "New Dependencies Demo"
-        titleLabel.font = .systemFont(ofSize: 24, weight: .bold)
-        titleLabel.textAlignment = .center
-        contentView.addSubview(titleLabel)
-        titleLabel.snp.makeConstraints { make in
-            make.top.equalToSuperview().offset(20)
-            make.leading.trailing.equalToSuperview().inset(20)
-        }
-        
-        // Set up animation container
-        let animContainer = UIView()
-        animContainer.backgroundColor = .systemGray6
-        animContainer.layer.cornerRadius = 16
-        contentView.addSubview(animContainer)
-        animContainer.snp.makeConstraints { make in
-            make.top.equalTo(titleLabel.snp.bottom).offset(20)
-            make.centerX.equalToSuperview()
-            make.width.equalTo(240)
-            make.height.equalTo(180)
-        }
-        
-        // Add animation
-        let anim = AnimationHelper.addAnimation(name: "lottie_animation", to: animContainer, loopMode: .loop)
-        animationContainer = animContainer
-        animationView = anim
-        
-        // Create buttons using ElegantUIComponents
-        cryptoExampleButton = ElegantUIComponents.createGradientButton(
-            title: "CryptoSwift Example",
-            colors: [.systemIndigo, .systemPurple]
-        )
-        cryptoExampleButton.addTarget(self, action: #selector(showCryptoExample), for: .touchUpInside)
-        
-        uiExampleButton = ElegantUIComponents.createGradientButton(
-            title: "SnapKit & Lottie Example",
-            colors: [.systemBlue, .systemTeal]
-        )
-        uiExampleButton.addTarget(self, action: #selector(showUIExample), for: .touchUpInside)
-        
-        networkExampleButton = ElegantUIComponents.createGradientButton(
-            title: "Moya Example",
-            colors: [.systemGreen, .systemTeal]
-        )
-        networkExampleButton.addTarget(self, action: #selector(showNetworkExample), for: .touchUpInside)
-        
-        resourceExampleButton = ElegantUIComponents.createGradientButton(
-            title: "R.swift Example",
-            colors: [.systemOrange, .systemYellow]
-        )
-        resourceExampleButton.addTarget(self, action: #selector(showResourceExample), for: .touchUpInside)
-        
-        swiftuiDemoButton = ElegantUIComponents.createGradientButton(
-            title: "SwiftUIX Demo",
-            colors: [.systemPink, .systemRed]
-        )
-        swiftuiDemoButton.addTarget(self, action: #selector(showSwiftUIDemo), for: .touchUpInside)
-        
-        // Create a stack view for buttons
-        let buttonsStack = UIStackView(arrangedSubviews: [
-            cryptoExampleButton,
-            uiExampleButton,
-            networkExampleButton,
-            resourceExampleButton,
-            swiftuiDemoButton
-        ])
-        buttonsStack.axis = .vertical
-        buttonsStack.spacing = 20
-        buttonsStack.distribution = .fillEqually
-        contentView.addSubview(buttonsStack)
-        
-        // Set constraints for buttons stack
-        buttonsStack.snp.makeConstraints { make in
-            make.top.equalTo(animContainer.snp.bottom).offset(30)
-            make.leading.trailing.equalToSuperview().inset(30)
-            make.bottom.equalToSuperview().offset(-30)
-            
-            // Set height for each button
-            buttonsStack.arrangedSubviews.forEach { button in
-                button.snp.makeConstraints { make in
-                    make.height.equalTo(50)
-                }
+        var floatValue: Float {
+            switch self {
+            case .once:
+                return 1.0
+            case .finite(let count):
+                return Float(count)
+            case .infinity:
+                return .infinity
             }
         }
     }
-    
-    // MARK: - Demo Methods
-    
-    @objc private func showCryptoExample() {
-        // Create a text to encrypt
-        let text = "Example secure text for encryption"
-        let password = "securePassword123"
-        
-        guard let data = text.data(using: .utf8) else { return }
-        
-        // Use CryptoHelper to encrypt and decrypt
-        let encryptedText = CryptoHelper.shared.encryptAES(data, password: password)
-        
-        var resultMessage = "Original: \(text)\n\n"
-        
-        if let encryptedText = encryptedText {
-            resultMessage += "Encrypted (Base64):\n\(encryptedText)\n\n"
-            
-            // Decrypt
-            if let decryptedData = CryptoHelper.shared.decryptAES(encryptedText, password: password),
-               let decryptedText = String(data: decryptedData, encoding: .utf8) {
-                resultMessage += "Decrypted: \(decryptedText)\n\n"
-            } else {
-                resultMessage += "Decryption failed\n\n"
-            }
-        } else {
-            resultMessage += "Encryption failed\n\n"
-        }
-        
-        // Show SHA-256 hash
-        let shaHash = CryptoHelper.shared.sha256(text)
-        resultMessage += "SHA-256 hash:\n\(shaHash)"
-        
-        // Show alert with results
-        let alert = UIAlertController(title: "CryptoSwift Demo", message: resultMessage, preferredStyle: .alert)
-        alert.addAction(UIAlertAction(title: "OK", style: .default))
-        present(alert, animated: true)
-    }
-    
-    @objc private func showUIExample() {
-        // Show loading animation
-        let loaderView = AnimationHelper.showLoader(in: view, message: "Loading...")
-        
-        // Hide it after a delay
-        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-            AnimationHelper.hideLoader(loaderView)
-            
-            // Show floating text field example
-            let textFieldContainer = ElegantUIComponents.createFloatingTextField(placeholder: "Enter text here")
-            
-            // Create alert with custom view
-            let alert = UIAlertController(title: "SnapKit & Lottie Demo", message: "Custom UI components created with SnapKit and styled elegantly.", preferredStyle: .alert)
-            alert.addAction(UIAlertAction(title: "Close", style: .default))
-            self.present(alert, animated: true)
-        }
-    }
-    
-    @objc private func showNetworkExample() {
-        // Show loading
-        let loaderView = AnimationHelper.showLoader(in: view, message: "Checking API...")
-        
-        // Use NetworkManager to make a request
-        NetworkManager.shared.request(.sources, type: SourcesResponse.self) { result in
-            // Hide loader
-            AnimationHelper.hideLoader(loaderView)
-            
-            // Process result
-            var message = ""
-            switch result {
-            case .success(let response):
-                message = "API Request Successful!\n\n"
-                message += "Number of sources: \(response.sources.count)\n"
-                if !response.sources.isEmpty {
-                    message += "\nFirst source: \(response.sources[0].name)"
-                }
-                
-            case .failure(let error):
-                message = "API Request Failed\n\n"
-                message += "Error: \(error.localizedDescription)"
-                
-                // Since we're in a demo, we'll show a success message even if the API isn't available
-                message += "\n\nThis is a demo of Moya's capabilities:"
-                message += "\n- Endpoint abstraction"
-                message += "\n- Type-safe API requests"
-                message += "\n- Built-in logging and plugins"
-                message += "\n- Async/await support"
-            }
-            
-            // Show alert with results
-            let alert = UIAlertController(title: "Moya Demo", message: message, preferredStyle: .alert)
-            alert.addAction(UIAlertAction(title: "OK", style: .default))
-            self.present(alert, animated: true)
-        }
-    }
-    
-    @objc private func showResourceExample() {
-        // In a real implementation, you would use R.swift generated resources
-        let message = """
-        R.swift gives you type-safe access to:
-  # Let's check the available package.resolved files
-find . -name "*.resolved"
-
-# Let's see the current content of these package.resolved files
-echo "First package.resolved file:"
-cat $(find . -name "*.resolved" | head -1)
-
-echo "Second package.resolved file:"
-cat $(find . -name "*.resolved" | head -2 | tail -1)
-
-# Let's also create a directory to hold our demo Lottie animation
-mkdir -p iOS/Resources/Animations
-# Let's try another way to find the package.resolved files
-find . -name "package.resolved" -type f
-find . -name "Package.resolved" -type f
-find . -name "*.xcworkspace" -type d
-find . -name "project.xcworkspace" -type d
-
-# Check for .xcodeproj directory
-find . -name "*.xcodeproj" -type d
-
-# Look inside the xcodeproj directory
-ls -la backdoor.xcodeproj/project.xcworkspace/xcshareddata/swiftpm
-
-# Check if it exists
-ls -la backdoor.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved
-
-# Look inside xcworkspace also
-ls -la backdoor.xcworkspace/xcshareddata/swiftpm
-
-# Check this one as well
-ls -la backdoor.xcworkspace/xcshareddata/swiftpm/Package.resolved
-# Create a simple Lottie animation JSON file for demo purposes
-cat > iOS/Resources/Animations/lottie_animation.json << 'EOF'
-{
-  "v": "5.9.0",
-  "fr": 30,
-  "ip": 0,
-  "op": 90,
-  "w": 300,
-  "h": 300,
-  "nm": "Simple Animation",
-  "ddd": 0,
-  "assets": [],
-  "layers": [
-    {
-      "ddd": 0,
-      "ind": 1,
-      "ty": 4,
-      "nm": "Circle",
-      "sr": 1,
-      "ks": {
-        "o": {
-          "a": 1,
-          "k": [
-            {
-              "i": { "x": [0.667], "y": [1] },
-              "o": { "x": [0.333], "y": [0] },
-              "t": 0,
-              "s": [100]
-            },
-            {
-              "i": { "x": [0.667], "y": [1] },
-              "o": { "x": [0.333], "y": [0] },
-              "t": 45,
-              "s": [50]
-            },
-            { "t": 90, "s": [100] }
-          ]
-        },
-        "r": {
-          "a": 1,
-          "k": [
-            {
-              "i": { "x": [0.667], "y": [1] },
-              "o": { "x": [0.333], "y": [0] },
-              "t": 0,
-              "s": [0]
-            },
-            { "t": 90, "s": [360] }
-          ]
-        },
-        "p": { "a": 0, "k": [150, 150, 0] },
-        "a": { "a": 0, "k": [0, 0, 0] },
-        "s": {
-          "a": 1,
-          "k": [
-            {
-              "i": { "x": [0.667, 0.667, 0.667], "y": [1, 1, 1] },
-              "o": { "x": [0.333, 0.333, 0.333], "y": [0, 0, 0] },
-              "t": 0,
-              "s": [100, 100, 100]
-            },
-            {
-              "i": { "x": [0.667, 0.667, 0.667], "y": [1, 1, 1] },
-              "o": { "x": [0.333, 0.333, 0.333], "y": [0, 0, 0] },
-              "t": 45,
-              "s": [150, 150, 100]
-            },
-            { "t": 90, "s": [100, 100, 100] }
-          ]
-        }
-      },
-      "ao": 0,
-      "shapes": [
-        {
-          "ty": "gr",
-          "it": [
-            {
-              "d": 1,
-              "ty": "el",
-              "s": { "a": 0, "k": [80, 80] },
-              "p": { "a": 0, "k": [0, 0] }
-            },
-            {
-              "ty": "fl",
-              "c": {
-                "a": 1,
-                "k": [
-                  {
-                    "i": { "x": [0.667], "y": [1] },
-                    "o": { "x": [0.333], "y": [0] },
-                    "t": 0,
+}
                     "s": [0.2, 0.6, 1, 1]
                   },
                   {

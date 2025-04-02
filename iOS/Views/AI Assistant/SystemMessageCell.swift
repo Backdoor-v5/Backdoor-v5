@@ -6,13 +6,11 @@
 
 import CoreData
 import UIKit
-import SnapKit
-import Lottie
 
 class SystemMessageCell: UITableViewCell {
     private let messageLabel = UILabel()
     private let containerView = UIView()
-    private var animationView: LottieAnimationView?
+    private var animationImageView: UIImageView?
 
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
@@ -37,23 +35,25 @@ class SystemMessageCell: UITableViewCell {
         messageLabel.textColor = .systemGray
         messageLabel.font = .systemFont(ofSize: 14, weight: .medium)
         messageLabel.textAlignment = .center
+        messageLabel.translatesAutoresizingMaskIntoConstraints = false
         
         containerView.addSubview(messageLabel)
+        containerView.translatesAutoresizingMaskIntoConstraints = false
 
-        // Setup constraints with SnapKit
-        containerView.snp.makeConstraints { make in
-            make.leading.trailing.equalToSuperview()
-            make.top.equalToSuperview().offset(3)
-            make.bottom.equalToSuperview().offset(-3)
-        }
-        
-        messageLabel.snp.makeConstraints { make in
-            make.center.equalToSuperview()
-            make.leading.greaterThanOrEqualToSuperview().offset(12)
-            make.trailing.lessThanOrEqualToSuperview().offset(-12)
-            make.top.equalToSuperview().offset(3)
-            make.bottom.equalToSuperview().offset(-3)
-        }
+        // Setup constraints with native AutoLayout
+        NSLayoutConstraint.activate([
+            containerView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
+            containerView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
+            containerView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 3),
+            containerView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -3),
+            
+            messageLabel.centerXAnchor.constraint(equalTo: containerView.centerXAnchor),
+            messageLabel.centerYAnchor.constraint(equalTo: containerView.centerYAnchor),
+            messageLabel.leadingAnchor.constraint(greaterThanOrEqualTo: containerView.leadingAnchor, constant: 12),
+            messageLabel.trailingAnchor.constraint(lessThanOrEqualTo: containerView.trailingAnchor, constant: -12),
+            messageLabel.topAnchor.constraint(equalTo: containerView.topAnchor, constant: 3),
+            messageLabel.bottomAnchor.constraint(equalTo: containerView.bottomAnchor, constant: -3)
+        ])
     }
 
     func configure(with message: ChatMessage) {
@@ -69,16 +69,16 @@ class SystemMessageCell: UITableViewCell {
             messageLabel.textColor = .systemRed
             messageLabel.text = content
             
-            // Add error animation
-            addAnimation(name: "error", tintColor: .systemRed)
+            // Add error icon/animation
+            addIconAnimation(iconName: "exclamationmark.triangle.fill", tintColor: .systemRed)
             
         } else if content.contains("success") || content.contains("completed") {
             // Style for success messages
             messageLabel.textColor = .systemGreen
             messageLabel.text = content
             
-            // Add success animation
-            addAnimation(name: "success", tintColor: .systemGreen)
+            // Add success icon/animation
+            addIconAnimation(iconName: "checkmark.circle.fill", tintColor: .systemGreen)
             
         } else if content == "Assistant is thinking..." {
             // This should be handled by AIMessageCell, but just in case
@@ -92,36 +92,42 @@ class SystemMessageCell: UITableViewCell {
         }
     }
     
-    private func addAnimation(name: String, tintColor: UIColor) {
-        // Create small animation to enhance the message
-        animationView = LottieAnimationView(name: name)
-        animationView?.loopMode = .playOnce
-        animationView?.contentMode = .scaleAspectFit
-        
-        if let animationView = animationView {
-            containerView.addSubview(animationView)
-            
-            // Position animation next to the text
-            animationView.snp.makeConstraints { make in
-                make.leading.equalTo(messageLabel.snp.trailing).offset(4)
-                make.centerY.equalTo(messageLabel)
-                make.width.height.equalTo(20)
-            }
-            
-            // Set animation tint color
-            let colorProvider = ColorValueProvider(tintColor.lottieColorValue)
-            let keyPath = AnimationKeypath(keys: ["**", "Fill 1", "**", "Color"])
-            animationView.setValueProvider(colorProvider, keypath: keyPath)
-            
-            // Play animation
-            animationView.play()
+    private func addIconAnimation(iconName: String, tintColor: UIColor) {
+        // Create an image view with SF Symbol
+        let imageView = UIImageView()
+        if let image = UIImage(systemName: iconName) {
+            imageView.image = image
+        } else {
+            // Fallback if SF Symbol not available
+            imageView.backgroundColor = tintColor
+            imageView.layer.cornerRadius = 10
         }
+        
+        imageView.tintColor = tintColor
+        imageView.contentMode = .scaleAspectFit
+        imageView.translatesAutoresizingMaskIntoConstraints = false
+        containerView.addSubview(imageView)
+        animationImageView = imageView
+        
+        // Position icon next to the text
+        NSLayoutConstraint.activate([
+            imageView.leadingAnchor.constraint(equalTo: messageLabel.trailingAnchor, constant: 4),
+            imageView.centerYAnchor.constraint(equalTo: messageLabel.centerYAnchor),
+            imageView.widthAnchor.constraint(equalToConstant: 20),
+            imageView.heightAnchor.constraint(equalToConstant: 20)
+        ])
+        
+        // Add simple pulse animation
+        UIView.animate(withDuration: 0.5, delay: 0, options: [.autoreverse, .repeat], animations: {
+            imageView.transform = CGAffineTransform(scaleX: 1.2, y: 1.2)
+        }, completion: nil)
     }
     
     private func clearAnimation() {
         // Remove animation view if exists
-        animationView?.removeFromSuperview()
-        animationView = nil
+        animationImageView?.layer.removeAllAnimations()
+        animationImageView?.removeFromSuperview()
+        animationImageView = nil
     }
     
     override func prepareForReuse() {

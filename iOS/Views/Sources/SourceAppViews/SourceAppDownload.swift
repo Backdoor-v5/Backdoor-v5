@@ -49,18 +49,20 @@ extension SourceAppViewController {
         }
         
         // Show download animation in cell
-        let animationView = cell.addLottieAnimation(
-            name: "download_progress",
-            loopMode: .loop,
+        let animationView = cell.addAnimatedIcon(
+            systemName: "arrow.down.circle",
+            tintColor: .systemBlue,
             size: CGSize(width: 40, height: 40)
         )
         
         // Position animation in the cell
-        animationView.snp.makeConstraints { make in
-            make.trailing.equalToSuperview().offset(-16)
-            make.centerY.equalToSuperview()
-            make.width.height.equalTo(40)
-        }
+        animationView.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            animationView.trailingAnchor.constraint(equalTo: cell.contentView.trailingAnchor, constant: -16),
+            animationView.centerYAnchor.constraint(equalTo: cell.contentView.centerYAnchor),
+            animationView.widthAnchor.constraint(equalToConstant: 40),
+            animationView.heightAnchor.constraint(equalToConstant: 40)
+        ])
         
         // Add to task manager
         DownloadTaskManager.shared.addTask(uuid: appUUID, cell: cell, dl: cell.appDownload!)
@@ -100,17 +102,19 @@ extension SourceAppViewController {
                         Debug.shared.log(message: "Extraction error: \(error.localizedDescription)", type: .error)
                         
                         // Show error animation
-                        let errorAnimation = cell.addLottieAnimation(
-                            name: "error",
-                            loopMode: .playOnce,
+                        let errorAnimation = cell.addAnimatedIcon(
+                            systemName: "exclamationmark.circle",
+                            tintColor: .systemRed,
                             size: CGSize(width: 40, height: 40)
                         )
                         
-                        errorAnimation.snp.makeConstraints { make in
-                            make.trailing.equalToSuperview().offset(-16)
-                            make.centerY.equalToSuperview()
-                            make.width.height.equalTo(40)
-                        }
+                        errorAnimation.translatesAutoresizingMaskIntoConstraints = false
+                        NSLayoutConstraint.activate([
+                            errorAnimation.trailingAnchor.constraint(equalTo: cell.contentView.trailingAnchor, constant: -16),
+                            errorAnimation.centerYAnchor.constraint(equalTo: cell.contentView.centerYAnchor),
+                            errorAnimation.widthAnchor.constraint(equalToConstant: 40),
+                            errorAnimation.heightAnchor.constraint(equalToConstant: 40)
+                        ])
                         
                         // Remove error animation after delay
                         DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
@@ -123,20 +127,22 @@ extension SourceAppViewController {
                                 Debug.shared.log(message: "Failed to add app: \(error.localizedDescription)", type: .error)
                             } else {
                                 DownloadTaskManager.shared.updateTask(uuid: appUUID, state: .completed)
-                                Debug.shared.log(message: R.string.general.done, type: .success)
+                                Debug.shared.log(message: "Done", type: .success)
                                 
                                 // Show success animation
-                                let successAnimation = cell.addLottieAnimation(
-                                    name: "success",
-                                    loopMode: .playOnce,
+                                let successAnimation = cell.addAnimatedIcon(
+                                    systemName: "checkmark.circle",
+                                    tintColor: .systemGreen,
                                     size: CGSize(width: 40, height: 40)
                                 )
                                 
-                                successAnimation.snp.makeConstraints { make in
-                                    make.trailing.equalToSuperview().offset(-16)
-                                    make.centerY.equalToSuperview()
-                                    make.width.height.equalTo(40)
-                                }
+                                successAnimation.translatesAutoresizingMaskIntoConstraints = false
+                                NSLayoutConstraint.activate([
+                                    successAnimation.trailingAnchor.constraint(equalTo: cell.contentView.trailingAnchor, constant: -16),
+                                    successAnimation.centerYAnchor.constraint(equalTo: cell.contentView.centerYAnchor),
+                                    successAnimation.widthAnchor.constraint(equalToConstant: 40),
+                                    successAnimation.heightAnchor.constraint(equalToConstant: 40)
+                                ])
                                 
                                 // Remove success animation after delay
                                 DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
@@ -187,17 +193,19 @@ extension SourceAppViewController {
                 }
                 
                 // Show error animation
-                let errorAnimation = cell.addLottieAnimation(
-                    name: "error",
-                    loopMode: .playOnce, 
+                let errorAnimation = cell.addAnimatedIcon(
+                    systemName: "exclamationmark.circle",
+                    tintColor: .systemRed,
                     size: CGSize(width: 40, height: 40)
                 )
                 
-                errorAnimation.snp.makeConstraints { make in
-                    make.trailing.equalToSuperview().offset(-16)
-                    make.centerY.equalToSuperview()
-                    make.width.height.equalTo(40)
-                }
+                errorAnimation.translatesAutoresizingMaskIntoConstraints = false
+                NSLayoutConstraint.activate([
+                    errorAnimation.trailingAnchor.constraint(equalTo: cell.contentView.trailingAnchor, constant: -16),
+                    errorAnimation.centerYAnchor.constraint(equalTo: cell.contentView.centerYAnchor),
+                    errorAnimation.widthAnchor.constraint(equalToConstant: 40),
+                    errorAnimation.heightAnchor.constraint(equalToConstant: 40)
+                ])
                 
                 // Remove error animation after delay
                 DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
