@@ -221,8 +221,8 @@ extension UIButton {
         startPoint: CGPoint = CGPoint(x: 0, y: 0),
         endPoint: CGPoint = CGPoint(x: 1, y: 1)
     ) {
-        // Store original title color
-        let titleColor = titleColor(for: .normal) ?? .white
+        // Get the button's title color for styling consideration
+        // (Currently not used but could be used for contrast calculations)
         
         // Add gradient background
         addGradientBackground(colors: colors, startPoint: startPoint, endPoint: endPoint)
