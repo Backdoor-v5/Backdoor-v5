@@ -100,27 +100,29 @@ extension AILearningManager {
             // Create enhanced text classifier with context features
             let modelURL = modelsDirectory.appendingPathComponent("model_\(newVersion).mlmodel")
             
-            // Train model with context awareness
+            // Create data table for CreateML
+            var dataTable = MLDataTable()
+            for (index, text) in textInput.enumerated() {
+                dataTable.append([
+                    "text": text,
+                    "label": intentOutput[index]
+                ])
+            }
+            
+            // Train model with simplified approach
             let textClassifier = try MLTextClassifier(
-                trainingData: .init(
-                    textColumn: .init(textInput),
-                    labelColumn: .init(intentOutput)
-                ),
-                parameters: MLTextClassifier.ModelParameters(
-                    validationData: nil,
-                    maxIterations: 100,
-                    numberOfNeighbors: 5,
-                    featureExtractor: .init()
-                )
+                trainingData: dataTable,
+                textColumn: "text",
+                labelColumn: "label"
             )
             
             // Save the model
             try textClassifier.write(to: modelURL)
             
             // Update current version
-            currentModelVersion = newVersion
-            UserDefaults.standard.set(newVersion, forKey: modelVersionKey)
-            UserDefaults.standard.set(Date(), forKey: lastTrainingKey)
+            let userDefaults = UserDefaults.standard
+            userDefaults.set(newVersion, forKey: modelVersionKey)
+            userDefaults.set(Date(), forKey: lastTrainingKey)
             
             Debug.shared.log(message: "Successfully trained new model using ALL user interactions, version: \(newVersion)", type: .info)
             
@@ -179,7 +181,10 @@ extension AILearningManager {
         let daysSinceLastTraining = Calendar.current.dateComponents([.day], from: lastTraining, to: Date()).day ?? Int.max
         
         // Train more often since we're using all data - now after just 8 hours (0.33 days)
-        guard daysSinceLastTraining >= 0.33 else {
+        // Convert to the same type for comparison (compare hours instead of fractional days)
+        let hoursSinceLastTraining = daysSinceLastTraining * 24 // convert days to hours
+        let minHoursBetweenTraining = 8 // 8 hours = 0.33 days
+        guard hoursSinceLastTraining >= minHoursBetweenTraining else {
             return
         }
         
