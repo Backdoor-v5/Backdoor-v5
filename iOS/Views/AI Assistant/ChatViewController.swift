@@ -38,7 +38,7 @@ class ChatViewController: UIViewController, UITableViewDataSource, UITableViewDe
     }
     
     // Animation view for sending state
-    private var sendingAnimation: LottieAnimationView?
+    private var sendingAnimation: UIImageView?
 
     // MARK: - Callbacks
 
@@ -247,10 +247,10 @@ class ChatViewController: UIViewController, UITableViewDataSource, UITableViewDe
         emptyView.isHidden = true
         emptyView.backgroundColor = .clear
         
-        // Add Lottie animation for empty state
-        let animationView = emptyView.addLottieAnimation(
-            name: "typing_indicator", 
-            loopMode: .loop,
+        // Add animation for empty state using SF Symbol
+        let animationView = emptyView.addAnimatedIcon(
+            systemName: "ellipsis.bubble", 
+            tintColor: .systemBlue,
             size: CGSize(width: 100, height: 50)
         )
         
@@ -264,18 +264,20 @@ class ChatViewController: UIViewController, UITableViewDataSource, UITableViewDe
         emptyView.addSubview(welcomeLabel)
         
         // Setup constraints
-        animationView.snp.makeConstraints { make in
-            make.centerX.equalToSuperview()
-            make.top.equalToSuperview()
-            make.width.equalTo(100)
-            make.height.equalTo(50)
-        }
+        animationView.translatesAutoresizingMaskIntoConstraints = false
+        welcomeLabel.translatesAutoresizingMaskIntoConstraints = false
         
-        welcomeLabel.snp.makeConstraints { make in
-            make.top.equalTo(animationView.snp.bottom).offset(16)
-            make.centerX.equalToSuperview()
-            make.leading.trailing.equalToSuperview().inset(30)
-        }
+        NSLayoutConstraint.activate([
+            animationView.centerXAnchor.constraint(equalTo: emptyView.centerXAnchor),
+            animationView.topAnchor.constraint(equalTo: emptyView.topAnchor),
+            animationView.widthAnchor.constraint(equalToConstant: 100),
+            animationView.heightAnchor.constraint(equalToConstant: 50),
+            
+            welcomeLabel.topAnchor.constraint(equalTo: animationView.bottomAnchor, constant: 16),
+            welcomeLabel.centerXAnchor.constraint(equalTo: emptyView.centerXAnchor),
+            welcomeLabel.leadingAnchor.constraint(equalTo: emptyView.leadingAnchor, constant: 30),
+            welcomeLabel.trailingAnchor.constraint(equalTo: emptyView.trailingAnchor, constant: -30)
+        ])
         
         // Add to table view
         tableView.backgroundView = emptyView
@@ -354,34 +356,38 @@ class ChatViewController: UIViewController, UITableViewDataSource, UITableViewDe
         activityIndicator.hidesWhenStopped = true
         inputContainer.addSubview(activityIndicator)
         
-        // Setup constraints with SnapKit
-        textField.snp.makeConstraints { make in
-            make.leading.equalToSuperview().offset(12)
-            make.centerY.equalToSuperview()
-            make.trailing.equalTo(sendButton.snp.leading).offset(-12)
-            make.height.equalTo(36)
-        }
+        // Setup constraints with native AutoLayout
+        textField.translatesAutoresizingMaskIntoConstraints = false
+        sendButton.translatesAutoresizingMaskIntoConstraints = false
+        animationContainer.translatesAutoresizingMaskIntoConstraints = false
+        activityIndicator.translatesAutoresizingMaskIntoConstraints = false
         
-        sendButton.snp.makeConstraints { make in
-            make.trailing.equalToSuperview().offset(-12)
-            make.centerY.equalToSuperview()
-            make.width.height.equalTo(40)
-        }
+        NSLayoutConstraint.activate([
+            textField.leadingAnchor.constraint(equalTo: inputContainer.leadingAnchor, constant: 12),
+            textField.centerYAnchor.constraint(equalTo: inputContainer.centerYAnchor),
+            textField.trailingAnchor.constraint(equalTo: sendButton.leadingAnchor, constant: -12),
+            textField.heightAnchor.constraint(equalToConstant: 36),
+            
+            sendButton.trailingAnchor.constraint(equalTo: inputContainer.trailingAnchor, constant: -12),
+            sendButton.centerYAnchor.constraint(equalTo: inputContainer.centerYAnchor),
+            sendButton.widthAnchor.constraint(equalToConstant: 40),
+            sendButton.heightAnchor.constraint(equalToConstant: 40),
+            
+            animationContainer.centerXAnchor.constraint(equalTo: sendButton.centerXAnchor),
+            animationContainer.centerYAnchor.constraint(equalTo: sendButton.centerYAnchor),
+            animationContainer.widthAnchor.constraint(equalToConstant: 40),
+            animationContainer.heightAnchor.constraint(equalToConstant: 40),
+            
+            activityIndicator.centerXAnchor.constraint(equalTo: sendButton.centerXAnchor),
+            activityIndicator.centerYAnchor.constraint(equalTo: sendButton.centerYAnchor),
+            activityIndicator.widthAnchor.constraint(equalToConstant: 20),
+            activityIndicator.heightAnchor.constraint(equalToConstant: 20)
+        ])
         
-        animationContainer.snp.makeConstraints { make in
-            make.center.equalTo(sendButton)
-            make.width.height.equalTo(40)
-        }
-        
-        activityIndicator.snp.makeConstraints { make in
-            make.center.equalTo(sendButton)
-            make.width.height.equalTo(20)
-        }
-        
-        // Add Lottie animation for sending state
-        sendingAnimation = animationContainer.addLottieAnimation(
-            name: "loading", 
-            loopMode: .loop,
+        // Add animated icon for sending state
+        sendingAnimation = animationContainer.addAnimatedIcon(
+            systemName: "arrow.clockwise", 
+            tintColor: .systemBlue,
             size: CGSize(width: 40, height: 40)
         )
         sendingAnimation?.isHidden = true

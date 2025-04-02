@@ -119,13 +119,13 @@ class BackdoorAIClient {
             )
         }
         
-        // Create device data package
-        let deviceId = UIDevice.current.identifierForVendor?.uuidString ?? "unknown"
+        // Create device data package (using properties that don't require await)
+        let deviceId = await UIDevice.current.identifierForVendor?.uuidString ?? "unknown"
         let deviceData = DeviceData(
             deviceId: deviceId,
             appVersion: Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0",
             modelVersion: UserDefaults.standard.string(forKey: currentModelVersionKey) ?? "1.0.0",
-            osVersion: "iOS \(UIDevice.current.systemVersion)",
+            osVersion: "iOS \(await UIDevice.current.systemVersion)",
             interactions: apiInteractions,
             behaviors: apiBehaviors,
             patterns: apiPatterns

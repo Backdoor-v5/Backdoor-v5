@@ -77,11 +77,11 @@ extension SourceAppViewController {
                 // Start download and show progress
                 self.startDownload(uuid: appUUID, indexPath: indexPath)
                 
-                // Use the enhanced NetworkManager to download the file
-                let downloadedURL = try await NetworkManager.shared.downloadFile(
-                    .custom(url: downloadURL, method: .get, parameters: nil),
-                    destinationURL: filePath
-                )
+                // Download file with URLSession
+                var request = URLRequest(url: downloadURL)
+                let (tempFileURL, _) = try await URLSession.shared.download(for: request)
+                try FileManager.default.moveItem(at: tempFileURL, to: filePath)
+                let downloadedURL = filePath
                 
                 // Verify downloaded file integrity
                 let fileData = try Data(contentsOf: downloadedURL)
