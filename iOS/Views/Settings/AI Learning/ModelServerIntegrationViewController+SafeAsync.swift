@@ -42,7 +42,7 @@ extension ModelServerIntegrationViewController {
     /// Updates the UI status label with the provided text and styling
     func updateStatusLabel(text: String, isError: Bool) {
         DispatchQueue.main.async { [weak self] in
-            guard let self = self.unsafelyUnwrapped else { return }
+            guard let self = self else { return }
             
             // Find the label by tag if it's not directly accessible
             if let statusLabel = self.view.viewWithTag(1001) as? UILabel {

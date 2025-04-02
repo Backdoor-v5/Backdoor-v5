@@ -210,7 +210,7 @@ final class CoreMLManager {
                     
                 case .dictionary:
                     // Some NLP models use dictionary inputs
-                    inputFeatures[featureName] = MLFeatureValue(dictionary: ["text": MLFeatureValue(string: text)])
+                    inputFeatures[featureName] = MLFeatureValue(dictionary: ["text": NSNumber(value: 1)])
                     
                 case .multiArray:
                     // For models that expect text to be pre-encoded (we just use a placeholder here)
@@ -326,31 +326,36 @@ final class CoreMLManager {
         switch intent.lowercased() {
         case "sign_app", "signing":
             // Extract app name
-            if let appName = text.extractMatch(pattern: "(?i)sign\\s+(?:the\\s+)?app\\s+(?:called\\s+|named\\s+)?([^?.,]+)", groupIndex: 1) {
+            let appNameMatches = text.extractMatch(pattern: "(?i)sign\\s+(?:the\\s+)?app\\s+(?:called\\s+|named\\s+)?([^?.,]+)", groupIndex: 1)
+            if let appName = appNameMatches {
                 parameters["appName"] = appName.trimmingCharacters(in: .whitespacesAndNewlines)
             }
             
         case "navigate", "navigation":
             // Extract destination
-            if let destination = text.extractMatch(pattern: "(?i)(?:go\\s+to|navigate\\s+to|open|show)\\s+(?:the\\s+)?([^?.,]+?)\\s+(?:tab|screen|page|section)", groupIndex: 1) {
+            let destinationMatches = text.extractMatch(pattern: "(?i)(?:go\\s+to|navigate\\s+to|open|show)\\s+(?:the\\s+)?([^?.,]+?)\\s+(?:tab|screen|page|section)", groupIndex: 1)
+            if let destination = destinationMatches {
                 parameters["destination"] = destination.trimmingCharacters(in: .whitespacesAndNewlines)
             }
             
         case "add_source", "source":
             // Extract URL
-            if let url = text.extractMatch(pattern: "(?i)add\\s+(?:a\\s+)?(?:new\\s+)?source\\s+(?:with\\s+url\\s+|at\\s+|from\\s+)?([^?.,\\s]+)", groupIndex: 1) {
+            let urlMatches = text.extractMatch(pattern: "(?i)add\\s+(?:a\\s+)?(?:new\\s+)?source\\s+(?:with\\s+url\\s+|at\\s+|from\\s+)?([^?.,\\s]+)", groupIndex: 1)
+            if let url = urlMatches {
                 parameters["url"] = url.trimmingCharacters(in: .whitespacesAndNewlines)
             }
             
         case "install_app", "install":
             // Extract app name
-            if let appName = text.extractMatch(pattern: "(?i)install\\s+(?:the\\s+)?app\\s+(?:called\\s+|named\\s+)?([^?.,]+)", groupIndex: 1) {
+            let appNameMatches = text.extractMatch(pattern: "(?i)install\\s+(?:the\\s+)?app\\s+(?:called\\s+|named\\s+)?([^?.,]+)", groupIndex: 1)
+            if let appName = appNameMatches {
                 parameters["appName"] = appName.trimmingCharacters(in: .whitespacesAndNewlines)
             }
             
         case "question", "query":
             // Extract question topic
-            if let topic = text.extractMatch(pattern: "(?i)(?:about|regarding|related\\s+to)\\s+([^?.,]+)", groupIndex: 1) {
+            let topicMatches = text.extractMatch(pattern: "(?i)(?:about|regarding|related\\s+to)\\s+([^?.,]+)", groupIndex: 1)
+            if let topic = topicMatches {
                 parameters["topic"] = topic.trimmingCharacters(in: .whitespacesAndNewlines)
             }
             
@@ -449,9 +454,9 @@ final class CoreMLManager {
                             score = positive
                             sentiment = positive > negative ? .positive : (negative > positive ? .negative : .neutral)
                         }
-                    } else if let value = feature.int64Value {
+                    } else if feature.type == .int64 {
                         // Some models use integers (0, 1, 2) for sentiment
-                        let sentimentValue = Int(value)
+                        let sentimentValue = Int(feature.int64Value)
                         switch sentimentValue {
                         case 0: sentiment = .negative; score = 0.25
                         case 1: sentiment = .neutral; score = 0.5
