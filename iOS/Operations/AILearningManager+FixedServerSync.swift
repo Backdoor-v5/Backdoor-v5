@@ -32,7 +32,7 @@ extension AILearningManager {
         request.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
         
         // Get device ID
-        let deviceId = UIDevice.current.identifierForVendor?.uuidString ?? "unknown-device"
+        let deviceId = await UIDevice.current.identifierForVendor?.uuidString ?? "unknown-device"
         
         // Get app version
         let appVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0"

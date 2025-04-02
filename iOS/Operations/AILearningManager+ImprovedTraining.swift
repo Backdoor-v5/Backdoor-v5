@@ -101,13 +101,9 @@ extension AILearningManager {
             let modelURL = modelsDirectory.appendingPathComponent("model_\(newVersion).mlmodel")
             
             // Create data table for CreateML
-            var dataTable = MLDataTable()
-            for (index, text) in textInput.enumerated() {
-                dataTable.append([
-                    "text": text,
-                    "label": intentOutput[index]
-                ])
-            }
+            let textInputColumn = MLDataColumn(textInput)
+            let intentOutputColumn = MLDataColumn(intentOutput)
+            let dataTable = try MLDataTable(columns: ["text": textInputColumn, "label": intentOutputColumn])
             
             // Train model with simplified approach
             let textClassifier = try MLTextClassifier(

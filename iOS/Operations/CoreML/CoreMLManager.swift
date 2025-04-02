@@ -489,6 +489,32 @@ final class CoreMLManager {
     }
 }
 
+// MARK: - String Extension for Regex
+
+extension String {
+    /// Extract text matching a regex pattern and group index
+    func extractMatch(pattern: String, groupIndex: Int) -> String? {
+        do {
+            let regex = try NSRegularExpression(pattern: pattern)
+            let range = NSRange(self.startIndex..., in: self)
+            if let match = regex.firstMatch(in: self, range: range) {
+                if match.numberOfRanges > groupIndex {
+                    let group = match.range(at: groupIndex)
+                    if group.location != NSNotFound,
+                       let groupRange = Range(group, in: self)
+                    {
+                        return String(self[groupRange])
+                    }
+                }
+            }
+            return nil
+        } catch {
+            Debug.shared.log(message: "Regex error: \(error.localizedDescription)", type: .error)
+            return nil
+        }
+    }
+}
+
 // MARK: - Models
 
 /// Result of intent prediction

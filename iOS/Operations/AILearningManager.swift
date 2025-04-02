@@ -603,7 +603,11 @@ class AILearningManager {
         // Extract relevant fields as strings
         var contextDict: [String: String] = [:]
         contextDict["screen"] = context.currentScreen
-        contextDict["session"] = context.sessionId
+        
+        // Get session ID from additional data if available
+        if let sessionId = context.additionalData["currentChatSession"] as? String {
+            contextDict["session"] = sessionId
+        }
         
         // Only return if we have at least one valid value
         return contextDict.isEmpty ? nil : contextDict
