@@ -297,10 +297,18 @@ class ChatViewController: UIViewController, UITableViewDataSource, UITableViewDe
             // Hide send button, show animation
             sendButton.isHidden = true
             sendingAnimation?.isHidden = false
-            sendingAnimation?.play()
+            
+            // Start animation manually since UIImageView doesn't have play()
+            UIView.animate(withDuration: 1.5, delay: 0, options: [.autoreverse, .repeat, .curveEaseInOut], animations: {
+                self.sendingAnimation?.transform = CGAffineTransform(scaleX: 1.2, y: 1.2).rotated(by: .pi)
+            })
         } else {
             // Hide animation, show send button
-            sendingAnimation?.stop()
+            if let imageView = sendingAnimation {
+                // Stop animation manually since UIImageView doesn't have stop()
+                imageView.layer.removeAllAnimations()
+                imageView.transform = .identity
+            }
             sendingAnimation?.isHidden = true
             sendButton.isHidden = false
         }

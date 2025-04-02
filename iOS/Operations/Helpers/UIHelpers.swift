@@ -49,8 +49,8 @@ extension UIView {
     }
 }
 
-// MARK: - Animation Helper
-class AnimationHelper {
+// MARK: - Internal Animation Helper
+class InternalAnimationHelper {
     /// Add an animated icon to a view (replacement for Lottie)
     /// - Parameters:
     ///   - systemName: SF Symbol name
@@ -188,8 +188,8 @@ class AnimationHelper {
     }
 }
 
-// MARK: - Elegant UI Components
-class ElegantUIComponents {
+// MARK: - Internal UI Components
+class InternalUIComponents {
     /// Create a beautifully styled button with gradient
     /// - Parameters:
     ///   - title: Button title
@@ -286,7 +286,7 @@ class ElegantUIComponents {
 
 /// Extension to define animation repeat options
 extension UIView {
-    enum AnimationRepeatCount {
+    enum AnimationRepeatCount: Equatable {
         case once
         case finite(count: Int)
         case infinity
@@ -299,6 +299,20 @@ extension UIView {
                 return Float(count)
             case .infinity:
                 return .infinity
+            }
+        }
+        
+        // Implementation of Equatable
+        static func == (lhs: UIView.AnimationRepeatCount, rhs: UIView.AnimationRepeatCount) -> Bool {
+            switch (lhs, rhs) {
+            case (.once, .once):
+                return true
+            case (.infinity, .infinity):
+                return true
+            case let (.finite(lhsCount), .finite(rhsCount)):
+                return lhsCount == rhsCount
+            default:
+                return false
             }
         }
     }
