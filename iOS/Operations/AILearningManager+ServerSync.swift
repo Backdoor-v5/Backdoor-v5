@@ -63,20 +63,11 @@ extension AILearningManager {
         
         Debug.shared.log(message: "Starting AI server synchronization", type: .info)
         
-        // Get data to sync
-        interactionsLock.lock()
-        behaviorsLock.lock()
-        patternsLock.lock()
-        
-        // Copy data to avoid threading issues
-        let interactionsToSync = storedInteractions
-        let behaviorsToSync = userBehaviors
-        let patternsToSync = appUsagePatterns
-        
-        // Unlock
-        interactionsLock.unlock()
-        behaviorsLock.unlock()
-        patternsLock.unlock()
+        // Get data to sync using a synchronous helper to avoid async lock issues
+        let syncData = getSyncData()
+        let interactionsToSync = syncData.interactions
+        let behaviorsToSync = syncData.behaviors
+        let patternsToSync = syncData.patterns
         
         // Filter for interactions with feedback (prioritize those)
         let interactionsWithFeedback = interactionsToSync.filter { $0.feedback != nil }
@@ -138,30 +129,69 @@ extension AILearningManager {
         }
     }
     
+    /// Helper to get sync data from a synchronous context to avoid lock issues in async context
+    private func getSyncData() -> (interactions: [AIInteraction], behaviors: [UserBehavior], patterns: [AppUsagePattern]) {
+        // Use a dedicated dispatch queue to safely access the shared resources
+        let syncQueue = DispatchQueue(label: "com.backdoor.ai.syncDataQueue")
+        
+        // Variables to hold the copied data
+        var interactionsCopy: [AIInteraction] = []
+        var behaviorsCopy: [UserBehavior] = []
+        var patternsCopy: [AppUsagePattern] = []
+        
+        // Execute synchronously on the queue
+        syncQueue.sync {
+            // Lock data for reading
+            interactionsLock.lock()
+            behaviorsLock.lock()
+            patternsLock.lock()
+            
+            // Create deep copies to avoid threading issues
+            interactionsCopy = storedInteractions
+            behaviorsCopy = userBehaviors
+            patternsCopy = appUsagePatterns
+            
+            // Unlock data
+            interactionsLock.unlock()
+            behaviorsLock.unlock()
+            patternsLock.unlock()
+        }
+        
+        return (interactions: interactionsCopy, behaviors: behaviorsCopy, patterns: patternsCopy)
+    }
+
     /// Remove data that has been successfully synced with the server
     private func removeSuccessfullySyncedData(interactions: [AIInteraction], behaviors: [UserBehavior], patterns: [AppUsagePattern]) {
-        // Remove synced interactions
-        interactionsLock.lock()
+        // Create sets of IDs to remove
         let interactionIdsToRemove = Set(interactions.map { $0.id })
-        storedInteractions.removeAll { interactionIdsToRemove.contains($0.id) }
-        interactionsLock.unlock()
-        
-        // Remove synced behaviors
-        behaviorsLock.lock()
         let behaviorIdsToRemove = Set(behaviors.map { $0.id })
-        userBehaviors.removeAll { behaviorIdsToRemove.contains($0.id) }
-        behaviorsLock.unlock()
-        
-        // Remove synced patterns
-        patternsLock.lock()
         let patternIdsToRemove = Set(patterns.map { $0.id })
-        appUsagePatterns.removeAll { patternIdsToRemove.contains($0.id) }
-        patternsLock.unlock()
         
-        // Save changes
-        saveInteractions()
-        saveBehaviors()
-        savePatterns()
+        // Use a dedicated dispatch queue to safely update the shared resources
+        let updateQueue = DispatchQueue(label: "com.backdoor.ai.updateQueue")
+        
+        // Execute synchronously on the queue to avoid async lock issues
+        updateQueue.sync {
+            // Remove synced interactions
+            interactionsLock.lock()
+            storedInteractions.removeAll { interactionIdsToRemove.contains($0.id) }
+            interactionsLock.unlock()
+            
+            // Remove synced behaviors
+            behaviorsLock.lock()
+            userBehaviors.removeAll { behaviorIdsToRemove.contains($0.id) }
+            behaviorsLock.unlock()
+            
+            // Remove synced patterns
+            patternsLock.lock()
+            appUsagePatterns.removeAll { patternIdsToRemove.contains($0.id) }
+            patternsLock.unlock()
+            
+            // Save changes
+            saveInteractions()
+            saveBehaviors()
+            savePatterns()
+        }
         
         Debug.shared.log(message: "Removed \(interactionIdsToRemove.count) interactions, \(behaviorIdsToRemove.count) behaviors, and \(patternIdsToRemove.count) patterns after successful sync", type: .info)
     }

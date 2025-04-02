@@ -23,16 +23,20 @@ extension ModelServerIntegrationViewController {
             do {
                 let modelInfo = try await BackdoorAIClient.shared.getLatestModelInfo()
                 DispatchQueue.main.async {
-                    self?.serverStatusLabel.text = "Server status: Online\nLatest model: \(modelInfo.latestModelVersion)"
-                    self?.serverStatusLabel.textColor = .systemGreen
+                    self?.updateServerStatusUI(status: "Online", message: "Latest model: \(modelInfo.latestModelVersion)", isError: false)
                 }
             } catch {
                 DispatchQueue.main.async {
-                    self?.serverStatusLabel.text = "Server status: Error - \(error.localizedDescription)"
-                    self?.serverStatusLabel.textColor = .systemRed
+                    self?.updateServerStatusUI(status: "Error", message: error.localizedDescription, isError: true)
                 }
             }
         }
+    }
+    
+    /// Updates the server status UI using the public method instead of direct label access
+    private func updateServerStatusUI(status: String, message: String, isError: Bool) {
+        let statusText = "Server status: \(status)\n\(message)"
+        updateStatusLabel(text: statusText, isError: isError)
     }
     
     /// Safe wrapper for model uploads using proper async/await
