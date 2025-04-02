@@ -1,13 +1,19 @@
-import CoreML
+// Proprietary Software License Version 1.0
+//
+// Copyright (C) 2025 BDG
+//
+// Backdoor App Signer is proprietary software. You may not use, modify, or distribute it except as expressly permitted under the terms of the Proprietary Software License.
+
 import Foundation
-import NaturalLanguage
 import UIKit
+import CoreML
+import NaturalLanguage
 
 /// Custom AI service that replaces the OpenRouter API with a local AI implementation
 final class CustomAIService {
     // Singleton instance for app-wide use
     static let shared = CustomAIService()
-
+    
     // Flag to track if CoreML is initialized
     private var isCoreMLInitialized = false
 
@@ -18,18 +24,18 @@ final class CustomAIService {
             self?.initializeCoreML()
         }
     }
-
+    
     /// Initialize CoreML model
     private func initializeCoreML() {
         Debug.shared.log(message: "Starting CoreML initialization for AI service", type: .info)
-
+        
         // Check if CoreML is already loaded by the manager
         if CoreMLManager.shared.isModelLoaded {
             self.isCoreMLInitialized = true
             Debug.shared.log(message: "CoreML model already loaded via manager, AI service ready", type: .info)
             return
         }
-
+        
         // Listen for CoreML model load completion
         NotificationCenter.default.addObserver(
             self,
@@ -37,7 +43,7 @@ final class CustomAIService {
             name: Notification.Name("CoreMLModelLoaded"),
             object: nil
         )
-
+        
         // Listen for AI capabilities enhancement
         NotificationCenter.default.addObserver(
             self,
@@ -45,35 +51,35 @@ final class CustomAIService {
             name: Notification.Name("AICapabilitiesEnhanced"),
             object: nil
         )
-
+        
         // Start loading the model if it's not already being loaded
         // This provides a backup initialization path
         DispatchQueue.global(qos: .userInitiated).async { [weak self] in
             // Ensure the model file is ready
             ModelFileManager.shared.prepareMLModel { [weak self] result in
                 switch result {
-                    case let .success(modelURL):
-                        Debug.shared.log(message: "ML model prepared at: \(modelURL.path)", type: .info)
-
-                        // Load the model
-                        CoreMLManager.shared.loadModel { success in
-                            if success, !(self?.isCoreMLInitialized ?? false) {
-                                self?.isCoreMLInitialized = true
-                                Debug.shared.log(message: "CoreML model successfully initialized via backup path", type: .info)
-                            } else if !success {
-                                Debug.shared.log(message: "CoreML model failed to initialize, falling back to pattern matching", type: .warning)
-                                self?.isCoreMLInitialized = false
-                            }
+                case .success(let modelURL):
+                    Debug.shared.log(message: "ML model prepared at: \(modelURL.path)", type: .info)
+                    
+                    // Load the model
+                    CoreMLManager.shared.loadModel { success in
+                        if success && !(self?.isCoreMLInitialized ?? false) {
+                            self?.isCoreMLInitialized = true
+                            Debug.shared.log(message: "CoreML model successfully initialized via backup path", type: .info)
+                        } else if !success {
+                            Debug.shared.log(message: "CoreML model failed to initialize, falling back to pattern matching", type: .warning)
+                            self?.isCoreMLInitialized = false
                         }
-
-                    case let .failure(error):
-                        Debug.shared.log(message: "Failed to prepare ML model: \(error.localizedDescription), falling back to pattern matching", type: .error)
-                        self?.isCoreMLInitialized = false
+                    }
+                    
+                case .failure(let error):
+                    Debug.shared.log(message: "Failed to prepare ML model: \(error.localizedDescription), falling back to pattern matching", type: .error)
+                    self?.isCoreMLInitialized = false
                 }
             }
         }
     }
-
+    
     /// Handle CoreML model load completion notification
     @objc private func handleCoreMLModelLoaded() {
         if !isCoreMLInitialized {
@@ -81,10 +87,10 @@ final class CustomAIService {
             Debug.shared.log(message: "CoreML model loaded notification received, enabling ML capabilities", type: .info)
         }
     }
-
+    
     /// Handle AI capabilities enhancement notification
     @objc private func handleAICapabilitiesEnhanced() {
-        if !isCoreMLInitialized, CoreMLManager.shared.isModelLoaded {
+        if !isCoreMLInitialized && CoreMLManager.shared.isModelLoaded {
             isCoreMLInitialized = true
             Debug.shared.log(message: "AI capabilities enhanced, ML features now available", type: .info)
         }
@@ -125,30 +131,29 @@ final class CustomAIService {
         DispatchQueue.global(qos: .userInitiated).async {
             // Get conversation history for context
             let conversationContext = self.extractConversationContext(messages: messages)
-
+            
             // Process the language of the message using our NaturalLanguageHelper
             // Identify the language of the message
             let detectedLanguage = NaturalLanguageHelper.shared.detectLanguage(in: lastUserMessage)
-
+            
             Debug.shared.log(message: "Detected message language: \(detectedLanguage)", type: .debug)
-
+            
             // Set language context for better response generation
-            var additionalContext: [String: Any] = context.additionalContext ?? [:]
-            additionalContext["detectedLanguage"] = detectedLanguage
-            context.additionalContext = additionalContext
-
+            var contextDict: [String: Any] = [:]
+            contextDict["detectedLanguage"] = detectedLanguage
+            
             // Also extract entities for better context understanding
             let entities = NaturalLanguageHelper.shared.extractEntities(from: lastUserMessage)
             if !entities.isEmpty {
-                additionalContext["entities"] = entities
+                contextDict["entities"] = entities
                 Debug.shared.log(message: "Detected entities: \(entities)", type: .debug)
             }
-
+            
             // Get sentiment score
             let sentimentScore = NaturalLanguageHelper.shared.analyzeSentiment(in: lastUserMessage)
-            additionalContext["sentiment"] = sentimentScore
+            contextDict["sentiment"] = sentimentScore
             Debug.shared.log(message: "Message sentiment score: \(sentimentScore)", type: .debug)
-
+            
             // Check if we should use CoreML-enhanced analysis
             if self.isCoreMLInitialized {
                 // Use CoreML for enhanced intent analysis
@@ -170,7 +175,7 @@ final class CustomAIService {
             } else {
                 // Fall back to pattern matching if CoreML isn't available
                 let messageIntent = self.analyzeUserIntent(message: lastUserMessage)
-
+                
                 // Generate response based on intent and context
                 let response = self.generateResponse(
                     intent: messageIntent,
@@ -187,12 +192,12 @@ final class CustomAIService {
             }
         }
     }
-
+    
     // Extract meaningful context from conversation history
     private func extractConversationContext(messages: [AIMessagePayload]) -> String {
         // Get the last 5 messages for context (or fewer if there aren't 5)
         let contextMessages = messages.suffix(min(5, messages.count))
-
+        
         return contextMessages.map { "\($0.role): \($0.content)" }.joined(separator: "\n")
     }
 
@@ -256,12 +261,12 @@ final class CustomAIService {
 
     // MARK: - Response Generation
 
-    func generateResponse(intent: MessageIntent, userMessage: String, conversationHistory _: [AIMessagePayload], conversationContext _: String, appContext: AppContext) -> String {
+    func generateResponse(intent: MessageIntent, userMessage: String, conversationHistory: [AIMessagePayload], conversationContext: String, appContext: AppContext) -> String {
         // Get context information
         let contextInfo = appContext.currentScreen
         // Get available commands for use in help responses
         let commandsList = AppContextManager.shared.availableCommands()
-
+        
         // Get additional context from the app
         let additionalContext = CustomAIContextProvider.shared.getContextSummary()
 
@@ -331,7 +336,7 @@ final class CustomAIService {
                 // Check if the message contains keywords related to app functionality
                 let appKeywords = ["sign", "certificate", "source", "install", "download", "app", "library", "settings"]
                 let containsAppKeywords = appKeywords.contains { userMessage.lowercased().contains($0) }
-
+                
                 if containsAppKeywords {
                     return """
                     I understand you need assistance with Backdoor. Based on your current context (\(contextInfo)), here are some actions I can help with:
@@ -342,16 +347,16 @@ final class CustomAIService {
                     - Navigate to different sections
 
                     \(additionalContext)
-
+                    
                     Please let me know specifically what you'd like to do.
                     """
                 } else {
                     // For completely unrelated queries, provide a friendly response
                     return """
                     I'm your Backdoor assistant, focused on helping you with app signing, installation, and management. 
-
+                    
                     \(additionalContext)
-
+                    
                     If you have questions about using Backdoor, I'm here to help! What would you like to know about the app?
                     """
                 }
