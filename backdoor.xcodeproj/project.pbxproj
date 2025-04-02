@@ -29,18 +29,12 @@
 		33E5A5A02CC85C1B00532930 /* Antoine.md in Resources */ = {isa = PBXBuildFile; fileRef = 33E5A59F2CC85C1B00532930 /* Antoine.md */; };
 		AA280D952C76AB7400CAC838 /* MobileCoreServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AA280D942C76AB7400CAC838 /* MobileCoreServices.framework */; };
 		D0AA9D542BFF02AF00A65D45 /* OpenSSL in Frameworks */ = {isa = PBXBuildFile; productRef = D0AA9D532BFF02AF00A65D45 /* OpenSSL */; };
-		33F105B42DE7A91A00D12345 /* CryptoSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 33F105B42DE7A91A00D12345 /* CryptoSwift */; };
-		33F105B62DE7A91A00D12346 /* SnapKit in Frameworks */ = {isa = PBXBuildFile; productRef = 33F105B62DE7A91A00D12346 /* SnapKit */; };
-		33F105B82DE7A91A00D12347 /* Lottie in Frameworks */ = {isa = PBXBuildFile; productRef = 33F105B82DE7A91A00D12347 /* Lottie */; };
-		33F105BA2DE7A91A00D12348 /* SwiftUIX in Frameworks */ = {isa = PBXBuildFile; productRef = 33F105BA2DE7A91A00D12348 /* SwiftUIX */; };
-		33F105BC2DE7A91A00D12349 /* Moya in Frameworks */ = {isa = PBXBuildFile; productRef = 33F105BC2DE7A91A00D12349 /* Moya */; };
-		33F105BE2DE7A91A00D1234A /* RswiftLibrary in Frameworks */ = {isa = PBXBuildFile; productRef = 33F105BE2DE7A91A00D1234A /* RswiftLibrary */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		331616942C78D55100894427 /* Asspp.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = Asspp.md; sourceTree = "<group>"; };
 		338B0F0C2D0C0E8200C5EA11 /* ru */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ru; path = ru.lproj/Localizable.strings; sourceTree = "<group>"; };
-		33BA378B2BF8159F00FF530A /* backdoor.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = backdoor.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		33BA378B2BF8159F00FF530A /* feather.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = feather.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		33BDD09F2C76D06900AF6169 /* UIOnboarding.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = UIOnboarding.md; sourceTree = "<group>"; };
 		33BDD0A12C76D0FB00AF6169 /* Ellekit.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = Ellekit.md; sourceTree = "<group>"; };
 		33BE87A62C72F5720044D245 /* SWCompression.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = SWCompression.md; sourceTree = "<group>"; };
@@ -64,14 +58,14 @@
 			membershipExceptions = (
 				Info.plist,
 			);
-			target = 33BA378A2BF8159F00FF530A /* backdoor */;
+			target = 33BA378A2BF8159F00FF530A /* feather */;
 		};
 		338232182D7A77E800999AD3 /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				ellekit.deb,
 			);
-			target = 33BA378A2BF8159F00FF530A /* backdoor */;
+			target = 33BA378A2BF8159F00FF530A /* feather */;
 		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
@@ -112,12 +106,6 @@
 				3322FF532BFEE5B9001768D8 /* NukeUI in Frameworks */,
 				33C0409E2C30DD3E00243D90 /* AlertKit in Frameworks */,
 				336EEE812C32367C0011188D /* ZIPFoundation in Frameworks */,
-				33F105B42DE7A91A00D12345 /* CryptoSwift in Frameworks */,
-				33F105B62DE7A91A00D12346 /* SnapKit in Frameworks */,
-				33F105B82DE7A91A00D12347 /* Lottie in Frameworks */,
-				33F105BA2DE7A91A00D12348 /* SwiftUIX in Frameworks */,
-				33F105BC2DE7A91A00D12349 /* Moya in Frameworks */,
-				33F105BE2DE7A91A00D1234A /* RswiftLibrary in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -161,7 +149,7 @@
 		33BA378C2BF8159F00FF530A /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				33BA378B2BF8159F00FF530A /* backdoor.app */,
+				33BA378B2BF8159F00FF530A /* feather.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -194,9 +182,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		33BA378A2BF8159F00FF530A /* backdoor */ = {
+		33BA378A2BF8159F00FF530A /* feather */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 33BA379F2BF815A100FF530A /* Build configuration list for PBXNativeTarget "backdoor" */;
+			buildConfigurationList = 33BA379F2BF815A100FF530A /* Build configuration list for PBXNativeTarget "feather" */;
 			buildPhases = (
 				33BA37872BF8159F00FF530A /* Sources */,
 				33BA37882BF8159F00FF530A /* Frameworks */,
@@ -216,7 +204,7 @@
 				338232032D7A77E700999AD3 /* Magic */,
 				338232162D7A77E700999AD3 /* Logging */,
 			);
-			name = backdoor;
+			name = feather;
 			packageProductDependencies = (
 				3322FF4E2BFEE5B9001768D8 /* Nuke */,
 				3322FF502BFEE5B9001768D8 /* NukeExtensions */,
@@ -228,15 +216,9 @@
 				33BE87A42C72E1220044D245 /* SWCompression */,
 				33BDD0A52C76EA4200AF6169 /* UIOnboarding */,
 				33BDD0BF2C7866FE00AF6169 /* Vapor */,
-				33F105B42DE7A91A00D12345 /* CryptoSwift */,
-				33F105B62DE7A91A00D12346 /* SnapKit */,
-				33F105B82DE7A91A00D12347 /* Lottie */,
-				33F105BA2DE7A91A00D12348 /* SwiftUIX */,
-				33F105BC2DE7A91A00D12349 /* Moya */,
-				33F105BE2DE7A91A00D1234A /* RswiftLibrary */,
 			);
-			productName = backdoor;
-			productReference = 33BA378B2BF8159F00FF530A /* backdoor.app */;
+			productName = feather;
+			productReference = 33BA378B2BF8159F00FF530A /* feather.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -255,7 +237,7 @@
 					};
 				};
 			};
-			buildConfigurationList = 33BA37862BF8159F00FF530A /* Build configuration list for PBXProject "backdoor" */;
+			buildConfigurationList = 33BA37862BF8159F00FF530A /* Build configuration list for PBXProject "feather" */;
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
@@ -280,19 +262,13 @@
 				33BE87A32C72E1220044D245 /* XCRemoteSwiftPackageReference "SWCompression" */,
 				33BDD0A42C76EA4100AF6169 /* XCRemoteSwiftPackageReference "UIOnboarding-18" */,
 				33BDD0BE2C7866FE00AF6169 /* XCRemoteSwiftPackageReference "vapor" */,
-				33F105B32DE7A91A00D12345 /* XCRemoteSwiftPackageReference "CryptoSwift" */,
-				33F105B52DE7A91A00D12346 /* XCRemoteSwiftPackageReference "SnapKit" */,
-				33F105B72DE7A91A00D12347 /* XCRemoteSwiftPackageReference "lottie-spm" */,
-				33F105B92DE7A91A00D12348 /* XCRemoteSwiftPackageReference "SwiftUIX" */,
-				33F105BB2DE7A91A00D12349 /* XCRemoteSwiftPackageReference "Moya" */,
-				33F105BD2DE7A91A00D1234A /* XCRemoteSwiftPackageReference "R.swift" */,
 			);
 			preferredProjectObjectVersion = 56;
 			productRefGroup = 33BA378C2BF8159F00FF530A /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				33BA378A2BF8159F00FF530A /* backdoor */,
+				33BA378A2BF8159F00FF530A /* feather */,
 			);
 		};
 /* End PBXProject section */
@@ -478,7 +454,7 @@
 				DEVELOPMENT_TEAM = "";
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = iOS/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = Backdoor;
+				INFOPLIST_KEY_CFBundleDisplayName = Feather;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright (c) 2024 Samara M (khcrysalis)";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -503,7 +479,7 @@
 					"-w",
 					"-Wno-everything",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = kh.crysalis.backdoor;
+				PRODUCT_BUNDLE_IDENTIFIER = kh.crysalis.feather;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
@@ -512,7 +488,7 @@
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "";
 				"SWIFT_ACTIVE_COMPILATION_CONDITIONS[arch=*]" = "";
 				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_OBJC_BRIDGING_HEADER = "Shared/Magic/backdoor-Bridging-Header.h";
+				SWIFT_OBJC_BRIDGING_HEADER = "Shared/Magic/feather-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -531,7 +507,7 @@
 				DEVELOPMENT_TEAM = "";
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = iOS/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = Backdoor;
+				INFOPLIST_KEY_CFBundleDisplayName = Feather;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright (c) 2024 Samara M (khcrysalis)";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -556,7 +532,7 @@
 					"-w",
 					"-Wno-everything",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = kh.crysalis.backdoor;
+				PRODUCT_BUNDLE_IDENTIFIER = kh.crysalis.feather;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
@@ -564,7 +540,7 @@
 				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "";
 				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_OBJC_BRIDGING_HEADER = "Shared/Magic/backdoor-Bridging-Header.h";
+				SWIFT_OBJC_BRIDGING_HEADER = "Shared/Magic/feather-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -573,7 +549,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		33BA37862BF8159F00FF530A /* Build configuration list for PBXProject "backdoor" */ = {
+		33BA37862BF8159F00FF530A /* Build configuration list for PBXProject "feather" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				33BA379D2BF815A100FF530A /* Debug */,
@@ -582,7 +558,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		33BA379F2BF815A100FF530A /* Build configuration list for PBXNativeTarget "backdoor" */ = {
+		33BA379F2BF815A100FF530A /* Build configuration list for PBXNativeTarget "feather" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				33BA37A02BF815A100FF530A /* Debug */,
@@ -596,7 +572,7 @@
 /* Begin XCRemoteSwiftPackageReference section */
 		3322FF4D2BFEE5B9001768D8 /* XCRemoteSwiftPackageReference "Nuke" */ = {
 			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/kean/Nuke.git";
+			repositoryURL = "https://github.com/kean/Nuke";
 			requirement = {
 				kind = upToNextMajorVersion;
 				minimumVersion = 12.7.0;
@@ -604,7 +580,7 @@
 		};
 		336EEE7F2C32367C0011188D /* XCRemoteSwiftPackageReference "ZIPFoundation" */ = {
 			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/weichsel/ZIPFoundation.git";
+			repositoryURL = "https://github.com/weichsel/ZIPFoundation";
 			requirement = {
 				kind = upToNextMajorVersion;
 				minimumVersion = 0.9.19;
@@ -612,7 +588,7 @@
 		};
 		33BDD0A42C76EA4100AF6169 /* XCRemoteSwiftPackageReference "UIOnboarding-18" */ = {
 			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/khcrysalis/UIOnboarding-18.git";
+			repositoryURL = "https://github.com/khcrysalis/UIOnboarding-18";
 			requirement = {
 				branch = main;
 				kind = branch;
@@ -620,7 +596,7 @@
 		};
 		33BDD0BE2C7866FE00AF6169 /* XCRemoteSwiftPackageReference "vapor" */ = {
 			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/vapor/vapor.git";
+			repositoryURL = "https://github.com/vapor/vapor";
 			requirement = {
 				kind = upToNextMajorVersion;
 				minimumVersion = 4.104.0;
@@ -628,7 +604,7 @@
 		};
 		33BE87A32C72E1220044D245 /* XCRemoteSwiftPackageReference "SWCompression" */ = {
 			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/tsolomko/SWCompression.git";
+			repositoryURL = "https://github.com/tsolomko/SWCompression";
 			requirement = {
 				kind = upToNextMajorVersion;
 				minimumVersion = 4.8.6;
@@ -636,7 +612,7 @@
 		};
 		33C0409C2C30DD3E00243D90 /* XCRemoteSwiftPackageReference "AlertKit" */ = {
 			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/sparrowcode/AlertKit.git";
+			repositoryURL = "https://github.com/sparrowcode/AlertKit";
 			requirement = {
 				kind = upToNextMajorVersion;
 				minimumVersion = 5.1.9;
@@ -644,58 +620,10 @@
 		};
 		D0AA9D522BFF02AF00A65D45 /* XCRemoteSwiftPackageReference "OpenSSL-Swift-Package" */ = {
 			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/HAHALOSAH/OpenSSL-Swift-Package.git";
+			repositoryURL = "https://github.com/HAHALOSAH/OpenSSL-Swift-Package";
 			requirement = {
 				branch = main;
 				kind = branch;
-			};
-		};
-		33F105B32DE7A91A00D12345 /* XCRemoteSwiftPackageReference "CryptoSwift" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/krzyzanowskim/CryptoSwift.git";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 1.8.3;
-			};
-		};
-		33F105B52DE7A91A00D12346 /* XCRemoteSwiftPackageReference "SnapKit" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/SnapKit/SnapKit.git";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 5.0.1;
-			};
-		};
-		33F105B72DE7A91A00D12347 /* XCRemoteSwiftPackageReference "lottie-spm" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/airbnb/lottie-spm.git";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 4.5.1;
-			};
-		};
-		33F105B92DE7A91A00D12348 /* XCRemoteSwiftPackageReference "SwiftUIX" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/SwiftUIX/SwiftUIX.git";
-			requirement = {
-				branch = master;
-				kind = branch;
-			};
-		};
-		33F105BB2DE7A91A00D12349 /* XCRemoteSwiftPackageReference "Moya" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/Moya/Moya.git";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 15.0.0;
-			};
-		};
-		33F105BD2DE7A91A00D1234A /* XCRemoteSwiftPackageReference "R.swift" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/mac-cain13/R.swift.git";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 7.0.0;
 			};
 		};
 /* End XCRemoteSwiftPackageReference section */
@@ -750,36 +678,6 @@
 			isa = XCSwiftPackageProductDependency;
 			package = D0AA9D522BFF02AF00A65D45 /* XCRemoteSwiftPackageReference "OpenSSL-Swift-Package" */;
 			productName = OpenSSL;
-		};
-		33F105B42DE7A91A00D12345 /* CryptoSwift */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 33F105B32DE7A91A00D12345 /* XCRemoteSwiftPackageReference "CryptoSwift" */;
-			productName = CryptoSwift;
-		};
-		33F105B62DE7A91A00D12346 /* SnapKit */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 33F105B52DE7A91A00D12346 /* XCRemoteSwiftPackageReference "SnapKit" */;
-			productName = SnapKit;
-		};
-		33F105B82DE7A91A00D12347 /* Lottie */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 33F105B72DE7A91A00D12347 /* XCRemoteSwiftPackageReference "lottie-spm" */;
-			productName = Lottie;
-		};
-		33F105BA2DE7A91A00D12348 /* SwiftUIX */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 33F105B92DE7A91A00D12348 /* XCRemoteSwiftPackageReference "SwiftUIX" */;
-			productName = SwiftUIX;
-		};
-		33F105BC2DE7A91A00D12349 /* Moya */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 33F105BB2DE7A91A00D12349 /* XCRemoteSwiftPackageReference "Moya" */;
-			productName = Moya;
-		};
-		33F105BE2DE7A91A00D1234A /* RswiftLibrary */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 33F105BD2DE7A91A00D1234A /* XCRemoteSwiftPackageReference "R.swift" */;
-			productName = RswiftLibrary;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
