@@ -29,6 +29,12 @@
 		33E5A5A02CC85C1B00532930 /* Antoine.md in Resources */ = {isa = PBXBuildFile; fileRef = 33E5A59F2CC85C1B00532930 /* Antoine.md */; };
 		AA280D952C76AB7400CAC838 /* MobileCoreServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AA280D942C76AB7400CAC838 /* MobileCoreServices.framework */; };
 		D0AA9D542BFF02AF00A65D45 /* OpenSSL in Frameworks */ = {isa = PBXBuildFile; productRef = D0AA9D532BFF02AF00A65D45 /* OpenSSL */; };
+		33F105B42DE7A91A00D12345 /* CryptoSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 33F105B42DE7A91A00D12345 /* CryptoSwift */; };
+		33F105B62DE7A91A00D12346 /* SnapKit in Frameworks */ = {isa = PBXBuildFile; productRef = 33F105B62DE7A91A00D12346 /* SnapKit */; };
+		33F105B82DE7A91A00D12347 /* Lottie in Frameworks */ = {isa = PBXBuildFile; productRef = 33F105B82DE7A91A00D12347 /* Lottie */; };
+		33F105BA2DE7A91A00D12348 /* SwiftUIX in Frameworks */ = {isa = PBXBuildFile; productRef = 33F105BA2DE7A91A00D12348 /* SwiftUIX */; };
+		33F105BC2DE7A91A00D12349 /* Moya in Frameworks */ = {isa = PBXBuildFile; productRef = 33F105BC2DE7A91A00D12349 /* Moya */; };
+		33F105BE2DE7A91A00D1234A /* RswiftLibrary in Frameworks */ = {isa = PBXBuildFile; productRef = 33F105BE2DE7A91A00D1234A /* RswiftLibrary */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -222,6 +228,12 @@
 				33BE87A42C72E1220044D245 /* SWCompression */,
 				33BDD0A52C76EA4200AF6169 /* UIOnboarding */,
 				33BDD0BF2C7866FE00AF6169 /* Vapor */,
+				33F105B42DE7A91A00D12345 /* CryptoSwift */,
+				33F105B62DE7A91A00D12346 /* SnapKit */,
+				33F105B82DE7A91A00D12347 /* Lottie */,
+				33F105BA2DE7A91A00D12348 /* SwiftUIX */,
+				33F105BC2DE7A91A00D12349 /* Moya */,
+				33F105BE2DE7A91A00D1234A /* RswiftLibrary */,
 			);
 			productName = backdoor;
 			productReference = 33BA378B2BF8159F00FF530A /* backdoor.app */;
