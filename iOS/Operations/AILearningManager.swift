@@ -37,7 +37,7 @@ class AILearningManager {
     private let interactionsPath: URL
     private let behaviorsPath: URL
     private let patternsPath: URL
-    private let modelsDirectory: URL
+    internal let modelsDirectory: URL  // Changed to internal for extension access
     private let exportsDirectory: URL
     
     // Training configuration
@@ -597,12 +597,20 @@ class AILearningManager {
     
     /// Get the current app context
     private func getCurrentContext() -> [String: String]? {
-        // Get context from AppContextManager
-        return AppContextManager.shared.currentContext()
+        // Convert AppContext to a string dictionary
+        let context = AppContextManager.shared.currentContext()
+        
+        // Extract relevant fields as strings
+        var contextDict: [String: String] = [:]
+        contextDict["screen"] = context.currentScreen
+        contextDict["session"] = context.sessionId
+        
+        // Only return if we have at least one valid value
+        return contextDict.isEmpty ? nil : contextDict
     }
     
     /// Map user behavior to an intent
-    private func getIntentFromBehavior(_ behavior: UserBehavior) -> String {
+    internal func getIntentFromBehavior(_ behavior: UserBehavior) -> String {
         switch behavior.action {
         case "open":
             return "navigate:\(behavior.screen)"
