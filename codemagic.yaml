@@ -1,45 +1,52 @@
 workflows:
-  create-new-release:
+  version: 1.0
+  build:
     name: Create New Release
-    environment:
-      groups:
-        - github_credentials  # You'll need to configure this group in Codemagic UI with GITHUB_TOKEN
-      vars:
-        SCHEME: "backdoor (Release)"
-        CFLAGS: "-Onone"
-    triggering:
-      events:
-        - push  # Codemagic doesn't have exact equivalent to workflow_dispatch, using push as trigger
-      branch_patterns:
-        - pattern: "main"  # Adjust branch as needed
-    instance_type: mac_mini_m1  # Closest equivalent to macos-15
     scripts:
-      - name: Install dependencies
-        script: | 
+      # Checkout code from the repository
+      - name: Checkout 
+        script: |
+          git clone https://github.com/your-repo-url.git
+          cd your-repo-name
+
+      # Install dependencies
+      - name: Install Dependencies
+        script: |
           curl -LO https://github.com/ProcursusTeam/ldid/releases/download/v2.1.5-procursus7/ldid_macosx_x86_64
           sudo install -m755 ldid_macosx_x86_64 /usr/local/bin/ldid
           brew install 7zip gnu-sed
 
-      - name: Compile package
-        script: | 
+      # Compile the package
+      - name: Compile
+        script: |
           mkdir upload
-          make package SCHEME="$SCHEME" CFLAGS="$CFLAGS"
+          make package SCHEME="'backdoor (Release)'" CFLAGS="-Onone"
           mv packages/* upload/
 
+      # Get Version Number
       - name: Get Version Number
         script: |
           VERSION=$( /usr/libexec/PlistBuddy -c "Print CFBundleShortVersionString" Payload/backdoor.app/Info.plist )
-          echo "export VERSION=$VERSION" >> $CM_ENV
+          echo "VERSION=${VERSION}" > version.txt
 
-      - name: Setup files
+      # Setup the files for release
+      - name: Setup
         script: |
+          source version.txt
           mv upload/backdoor.ipa upload/backdoor_v${VERSION}.ipa
           cp upload/backdoor_v${VERSION}.ipa upload/backdoor_v${VERSION}.tipa
 
-    publishing:
-      github:
-        # Requires GITHUB_TOKEN in environment variables
-        tag: v${VERSION}
-        release_notes: automatic  # Similar to generate_release_notes: true
-        artifacts:
-          - upload/*ipa
+      # Create GitHub Release
+      - name: Create GitHub Release
+        script: |
+          VERSION=$(cat version.txt | cut -d'=' -f2)
+          gh release create "v${VERSION}" upload/*ipa --title "backdoor v${VERSION}" --notes "Automatically generated release"
+
+    environment:
+      COMPOSER_CACHE: true
+      NODE_VERSION: '14'
+      # Add any other environment variables you require here
+
+    # You might need these if you are using protect branch and want to run builds
+    # triggers:
+    #   on_build_trigger: active
