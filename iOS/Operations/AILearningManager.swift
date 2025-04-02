@@ -409,7 +409,11 @@ class AILearningManager {
         
         // We meet all criteria, start training
         DispatchQueue.global(qos: .background).async { [weak self] in
-            self?.trainNewModel()
+            guard let self = self else { return }
+            let result = self.trainNewModel()
+            if !result.success {
+                Debug.shared.log(message: "Training failed: \(result.errorMessage ?? "Unknown error")", type: .error)
+            }
         }
     }
     
@@ -504,18 +508,16 @@ class AILearningManager {
             // Create enhanced text classifier with context features
             let modelURL = modelsDirectory.appendingPathComponent("model_\(newVersion).mlmodel")
             
-            // Train model with context awareness
+            // Create data table for CreateML
+            let textInputColumn = MLDataColumn(textInput)
+            let intentOutputColumn = MLDataColumn(intentOutput)
+            let dataTable = try MLDataTable(columns: ["text": textInputColumn, "label": intentOutputColumn])
+            
+            // Train model with simplified approach
             let textClassifier = try MLTextClassifier(
-                trainingData: .init(
-                    textColumn: .init(textInput),
-                    labelColumn: .init(intentOutput)
-                ),
-                parameters: MLTextClassifier.ModelParameters(
-                    validationData: nil,
-                    maxIterations: 100,
-                    numberOfNeighbors: 5,
-                    featureExtractor: .init()
-                )
+                trainingData: dataTable,
+                textColumn: "text",
+                labelColumn: "label"
             )
             
             // Save the model
