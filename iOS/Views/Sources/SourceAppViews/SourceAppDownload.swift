@@ -221,17 +221,4 @@ protocol DownloadDelegate: AnyObject {
     func stopDownload(uuid: String)
 }
 
-extension UIViewController {
-    func topMostViewController() -> UIViewController {
-        if let presented = presentedViewController {
-            return presented.topMostViewController()
-        }
-        if let navigation = self as? UINavigationController {
-            return navigation.visibleViewController?.topMostViewController() ?? navigation
-        }
-        if let tab = self as? UITabBarController {
-            return tab.selectedViewController?.topMostViewController() ?? tab
-        }
-        return self
-    }
-}
+// This extension is moved to UIApplication+TopViewController.swift to avoid redeclaration

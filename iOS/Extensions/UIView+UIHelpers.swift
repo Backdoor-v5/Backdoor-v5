@@ -335,8 +335,8 @@ extension UIViewController {
 
 // MARK: - CALayer Extensions
 extension CALayer {
-    /// Apply a futuristic shadow to the layer
-    func applyFuturisticShadow() {
+    /// Apply a shadow with blue tint to the layer
+    func applyBlueTintedShadow() {
         masksToBounds = false
         shadowColor = UIColor.systemBlue.cgColor
         shadowOffset = CGSize(width: 0, height: 4)

@@ -139,20 +139,19 @@ final class CustomAIService {
             Debug.shared.log(message: "Detected message language: \(detectedLanguage)", type: .debug)
             
             // Set language context for better response generation
-            var additionalContext: [String: Any] = context.additionalContext ?? [:]
-            additionalContext["detectedLanguage"] = detectedLanguage
-            context.additionalContext = additionalContext
+            var contextDict: [String: Any] = [:]
+            contextDict["detectedLanguage"] = detectedLanguage
             
             // Also extract entities for better context understanding
             let entities = NaturalLanguageHelper.shared.extractEntities(from: lastUserMessage)
             if !entities.isEmpty {
-                additionalContext["entities"] = entities
+                contextDict["entities"] = entities
                 Debug.shared.log(message: "Detected entities: \(entities)", type: .debug)
             }
             
             // Get sentiment score
             let sentimentScore = NaturalLanguageHelper.shared.analyzeSentiment(in: lastUserMessage)
-            additionalContext["sentiment"] = sentimentScore
+            contextDict["sentiment"] = sentimentScore
             Debug.shared.log(message: "Message sentiment score: \(sentimentScore)", type: .debug)
             
             // Check if we should use CoreML-enhanced analysis
