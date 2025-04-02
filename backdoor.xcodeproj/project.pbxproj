@@ -216,6 +216,7 @@
 				33BE87A42C72E1220044D245 /* SWCompression */,
 				33BDD0A52C76EA4200AF6169 /* UIOnboarding */,
 				33BDD0BF2C7866FE00AF6169 /* Vapor */,
+				33ABCDEF2D00000000000002 /* Lottie */,
 			);
 			productName = backdoor;
 			productReference = 33BA378B2BF8159F00FF530A /* backdoor.app */;
@@ -626,6 +627,14 @@
 				kind = branch;
 			};
 		};
+		33ABCDEF2D00000000000001 /* XCRemoteSwiftPackageReference "lottie-spm" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/airbnb/lottie-spm.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 4.5.1;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -678,6 +687,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = D0AA9D522BFF02AF00A65D45 /* XCRemoteSwiftPackageReference "OpenSSL-Swift-Package" */;
 			productName = OpenSSL;
+		};
+		33ABCDEF2D00000000000002 /* Lottie */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 33ABCDEF2D00000000000001 /* XCRemoteSwiftPackageReference "lottie-spm" */;
+			productName = Lottie;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
