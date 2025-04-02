@@ -210,7 +210,7 @@ final class CoreMLManager {
                     
                 case .dictionary:
                     // Some NLP models use dictionary inputs
-                    inputFeatures[featureName] = MLFeatureValue(dictionary: ["text": NSNumber(value: 1)])
+                    inputFeatures[featureName] = try MLFeatureValue(dictionary: ["text": NSNumber(value: 1)])
                     
                 case .multiArray:
                     // For models that expect text to be pre-encoded (we just use a placeholder here)

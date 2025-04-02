@@ -56,19 +56,5 @@ extension UIEdgeInsets {
     }
 }
 
-extension UIApplication {
-    /// Get the top-most view controller
-    func topMostViewController() -> UIViewController? {
-        let keyWindow = UIApplication.shared.windows.filter {$0.isKeyWindow}.first
-        
-        if var topController = keyWindow?.rootViewController {
-            while let presentedViewController = topController.presentedViewController {
-                topController = presentedViewController
-            }
-            
-            return topController
-        }
-        
-        return nil
-    }
-}
+// Extension removed to avoid conflict with UIApplication+TopViewController.swift
+// The topMostViewController() implementation is now centralized in UIApplication+TopViewController.swift
