@@ -32,6 +32,8 @@ package:
 		CODE_SIGNING_ALLOWED=NO \
 		DSTROOT=$(APP_TMP)/install \
 		ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES=NO \
+		SWIFT_OPTIMIZATION_LEVEL="-Onone" \
+		OTHER_SWIFT_FLAGS="-Xfrontend -disable-cross-module-optimization" \
 		CFLAGS="$(CFLAGS)"
 		
 	@rm -rf Payload
