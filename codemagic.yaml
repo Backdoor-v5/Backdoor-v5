@@ -6,13 +6,10 @@ workflows:
       vars:
         SCHEME: "'backdoor (Release)'"
         CFLAGS: "-Onone"
-      groups:
-        - github_credentials  # Add GITHUB_TOKEN in Codemagic UI environment group
     scripts:
       - name: Checkout
         script: |
           # Codemagic automatically checks out the repo, no need to git clone
-          # Just ensure we're in the right directory
           cd $CM_BUILD_DIR
 
       - name: Install Dependencies
@@ -36,10 +33,3 @@ workflows:
         script: |
           mv upload/backdoor.ipa upload/backdoor_v${VERSION}.ipa
           cp upload/backdoor_v${VERSION}.ipa upload/backdoor_v${VERSION}.tipa
-
-    publishing:
-      github:
-        tag: v${VERSION}
-        release_notes: automatic
-        artifacts:
-          - upload/*ipa
