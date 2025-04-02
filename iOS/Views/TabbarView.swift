@@ -1,9 +1,3 @@
-// Proprietary Software License Version 1.0
-//
-// Copyright (C) 2025 BDG
-//
-// Backdoor App Signer is proprietary software. You may not use, modify, or distribute it except as expressly permitted under the terms of the Proprietary Software License.
-
 import SwiftUI
 
 /// Extension to define notification names for tab-related events
@@ -255,7 +249,7 @@ struct NavigationViewController<Content: UIViewController>: UIViewControllerRepr
             // If the view controller supports content refreshing, refresh it
             // Check if the view is loaded and visible first to avoid unnecessary work
             if topVC.isViewLoaded && topVC.view.window != nil {
-                topVC.refreshContent() 
+                topVC.refreshContent()
             }
         }
     }

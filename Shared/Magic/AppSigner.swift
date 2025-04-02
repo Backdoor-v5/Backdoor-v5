@@ -1,9 +1,3 @@
-// Proprietary Software License Version 1.0
-//
-// Copyright (C) 2025 BDG
-//
-// Backdoor App Signer is proprietary software. You may not use, modify, or distribute it except as expressly permitted under the terms of the Proprietary Software License.
-
 import AlertKit
 import CoreData
 import Foundation
@@ -11,7 +5,7 @@ import UIKit
 
 // External function declarations from C/C++ code
 @_silgen_name("zsign")
-func zsign(_ appPath: String, _ provisionPath: String, _ p12Path: String, _ password: String, 
+func zsign(_ appPath: String, _ provisionPath: String, _ p12Path: String, _ password: String,
            _ bundleId: String, _ name: String, _ version: String, _ removeProvisioningFile: Bool) -> Int32
 
 @_silgen_name("InjectDyLib")

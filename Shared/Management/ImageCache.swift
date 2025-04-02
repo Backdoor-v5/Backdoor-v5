@@ -1,9 +1,3 @@
-// Proprietary Software License Version 1.0
-//
-// Copyright (C) 2025 BDG
-//
-// Backdoor App Signer is proprietary software. You may not use, modify, or distribute it except as expressly permitted under the terms of the Proprietary Software License.
-
 import UIKit
 
 /// A comprehensive image caching system that handles both memory and disk caching
@@ -46,10 +40,10 @@ final class ImageCache {
 
     /// Operation queue for downloads
     private let downloadQueue = OperationQueue()
-    
+
     /// Cache for image URLs that failed to load
     private var failedURLs = Set<URL>()
-    
+
     /// Queue for synchronizing access to failed URLs
     private let failedURLsQueue = DispatchQueue(label: "com.backdoor.ImageCache.FailedURLsQueue")
 
@@ -122,13 +116,13 @@ final class ImageCache {
             }
             return
         }
-        
+
         // Check if URL previously failed to load
         var shouldSkip = false
         failedURLsQueue.sync {
             shouldSkip = failedURLs.contains(url)
         }
-        
+
         if shouldSkip {
             Debug.shared.log(message: "Skipping previously failed URL: \(url.lastPathComponent)", type: .debug)
             DispatchQueue.main.async {
@@ -159,7 +153,7 @@ final class ImageCache {
         operationQueue.sync {
             isAlreadyInProgress = downloadOperations[url] != nil
         }
-        
+
         if isAlreadyInProgress {
             Debug.shared.log(message: "Image download already in progress: \(url.lastPathComponent)", type: .debug)
             return
@@ -193,7 +187,7 @@ final class ImageCache {
             // Download image if not in cache
             self.downloadImage(from: url, downsampling: downsampling, targetSize: targetSize) { [weak self] image in
                 guard let self = self else { return }
-                
+
                 if let image = image {
                     // Store in memory cache with cost based on image size
                     let cacheKey = NSString(string: cacheKeyString)
@@ -212,7 +206,7 @@ final class ImageCache {
                     self.failedURLsQueue.async {
                         self.failedURLs.insert(url)
                     }
-                    
+
                     DispatchQueue.main.async {
                         completion(nil)
                     }
@@ -248,7 +242,7 @@ final class ImageCache {
     func clearCache() {
         // Clear memory cache
         memoryCache.removeAllObjects()
-        
+
         // Clear failed URLs cache
         failedURLsQueue.async {
             self.failedURLs.removeAll()
@@ -448,7 +442,7 @@ final class ImageCache {
 
                     var currentSize = totalSize
                     let targetSize = self.maxDiskCacheSize * 80 / 100 // Target 80% of max size
-                    
+
                     for url in sortedFiles {
                         if currentSize <= targetSize {
                             break

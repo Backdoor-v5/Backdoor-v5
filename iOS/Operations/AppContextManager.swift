@@ -1,9 +1,3 @@
-// Proprietary Software License Version 1.0
-//
-// Copyright (C) 2025 BDG
-//
-// Backdoor App Signer is proprietary software. You may not use, modify, or distribute it except as expressly permitted under the terms of the Proprietary Software License.
-
 import CoreData
 import SwiftUI
 import UIKit
@@ -22,7 +16,7 @@ final class AppContextManager {
     var currentState: AppContext? // Refers to AppContext from AppContext.swift
     private var commandHandlers: [String: (String, @escaping (String) -> Void) -> Void] = [:]
     private let commandQueue = DispatchQueue(label: "com.app.commandQueue")
-    
+
     // Command history for AI prediction
     var commandHistory: [(command: String, parameter: String, timestamp: Date)] = []
 

@@ -1,9 +1,3 @@
-// Proprietary Software License Version 1.0
-//
-// Copyright (C) 2025 BDG
-//
-// Backdoor App Signer is proprietary software. You may not use, modify, or distribute it except as expressly permitted under the terms of the Proprietary Software License.
-
 import CoreData
 import SwiftUI
 import UIKit
@@ -18,10 +12,10 @@ extension AppContextManager {
 
         // Setup observers for context updates
         setupContextObservers()
-        
+
         // Setup CoreML integration
         setupCoreML()
-        
+
         // Register for CoreML model load completion
         NotificationCenter.default.addObserver(
             self,
@@ -33,18 +27,18 @@ extension AppContextManager {
         // Log successful initialization
         Debug.shared.log(message: "Custom AI Assistant integration initialized with \(availableCommands().count) commands", type: .info)
     }
-    
+
     /// Handle CoreML model load completion
     @objc private func coreMLModelLoaded() {
         Debug.shared.log(message: "CoreML model load completed, enhancing AI capabilities", type: .info)
-        
+
         // Update any AI components that depend on the model
         let additionalData: [String: Any] = [
             "mlModelLoaded": true,
-            "mlCapabilities": ["intent recognition", "sentiment analysis", "parameter extraction"]
+            "mlCapabilities": ["intent recognition", "sentiment analysis", "parameter extraction"],
         ]
         setAdditionalContextData(additionalData)
-        
+
         // Notify custom AI service that ML is available
         NotificationCenter.default.post(
             name: Notification.Name("AICapabilitiesEnhanced"),

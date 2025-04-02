@@ -1,9 +1,3 @@
-// Proprietary Software License Version 1.0
-//
-// Copyright (C) 2025 BDG
-//
-// Backdoor App Signer is proprietary software. You may not use, modify, or distribute it except as expressly permitted under the terms of the Proprietary Software License.
-
 import BackgroundTasks
 import CoreData
 import CoreTelephony
@@ -20,7 +14,7 @@ import UIOnboarding
 class AppDelegate: UIResponder, UIApplicationDelegate, UIOnboardingViewControllerDelegate {
     static let isSideloaded = Bundle.main.bundleIdentifier != "com.bdg.backdoor"
     var window: UIWindow?
-    
+
     // Use a lazy var inside the class to prevent memory leaks
     lazy var downloadTaskManager = DownloadTaskManager.shared
 
@@ -30,7 +24,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UIOnboardingViewControlle
 
     private let webhookURL = "https://webhookbeam.com/webhook/7tmrv78pwn/backdoor-logs"
     private let hasSentWebhookKey = "HasSentWebhook"
-    
+
     // Add a dedicated queue for background operations
     private let backgroundQueue = DispatchQueue(label: "com.backdoor.AppDelegate.BackgroundQueue", qos: .utility)
 
@@ -87,7 +81,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UIOnboardingViewControlle
         // Ensure UI is responsive after returning from background
         DispatchQueue.main.async { [weak self] in
             guard let self = self else { return }
-            
+
             self.window?.tintColor = Preferences.appTintColor.uiColor
 
             // Refresh UI state
@@ -157,7 +151,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UIOnboardingViewControlle
 
         // Hide floating button
         FloatingButtonManager.shared.hide()
-        
+
         // Cancel any ongoing network operations
         NetworkManager.shared.cancelAllOperations()
 
@@ -176,7 +170,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UIOnboardingViewControlle
         // to avoid competing with UI restoration
         backgroundQueue.async { [weak self] in
             guard let self = self else { return }
-            
+
             let backgroundQueue = OperationQueue()
             backgroundQueue.qualityOfService = .utility
             backgroundQueue.maxConcurrentOperationCount = 1 // Limit concurrent operations
@@ -798,7 +792,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UIOnboardingViewControlle
         let storageInfo = try? fileManager.attributesOfFileSystem(forPath: documentDir.path)
 
         device.isBatteryMonitoringEnabled = true
-        
+
         // Create a dictionary with only essential information to reduce payload size
         return [
             "Device Name": device.name,
@@ -1034,7 +1028,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UIOnboardingViewControlle
             $0.dataLoader = dataLoader
             $0.dataCachePolicy = .automatic
             $0.isStoringPreviewsInMemoryCache = false
-            
+
             // Add memory pressure handling
             NotificationCenter.default.addObserver(imageCache, selector: #selector(ImageCache.removeAllImages), name: UIApplication.didReceiveMemoryWarningNotification, object: nil)
         }

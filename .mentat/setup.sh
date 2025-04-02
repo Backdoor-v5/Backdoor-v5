@@ -217,56 +217,54 @@ install_swiftformat() {
     fi
 }
 
-# Function to install clang-format
-install_clang_format() {
-    echo -e "\n${BLUE}Installing clang-format...${NC}"
+# Function to check for clang-format (without trying to install)
+check_clang_format() {
+    echo -e "\n${BLUE}Checking for clang-format...${NC}"
     
     # Check if clang-format is already available
     if command -v clang-format &> /dev/null; then
-        echo -e "${GREEN}clang-format already installed${NC}"
-        return
+        echo -e "${GREEN}clang-format is available${NC}"
+        return 0
+    else
+        echo -e "${YELLOW}clang-format is not available.${NC}"
+        echo -e "${YELLOW}When running locally, you can install it with:${NC}"
+        echo -e "  - On Debian/Ubuntu: apt-get install clang-format"
+        echo -e "  - On macOS: brew install clang-format"
+        echo -e "  - On CentOS/RHEL: yum install clang-tools-extra"
+        return 1
     fi
-    
-    # Try apt-get for Debian-based systems
-    if command -v apt-get &> /dev/null; then
-        echo "Trying to install clang-format via apt-get..."
-        sudo apt-get update -y
-        sudo apt-get install -y clang-format || echo -e "${RED}Failed to install clang-format via apt-get${NC}"
-        return
-    fi
-    
-    # Try brew for macOS
-    if command -v brew &> /dev/null; then
-        echo "Trying to install clang-format via brew..."
-        brew install clang-format || echo -e "${RED}Failed to install clang-format via brew${NC}"
-        return
-    fi
-    
-    # Try yum for Red Hat-based systems
-    if command -v yum &> /dev/null; then
-        echo "Trying to install clang-format via yum..."
-        sudo yum install -y clang-tools-extra || echo -e "${RED}Failed to install clang-format via yum${NC}"
-        return
-    fi
-    
-    echo -e "${YELLOW}Could not install clang-format automatically. Please install it manually.${NC}"
 }
-
-# Install all required tools
-install_swiftlint
-install_swiftformat
-install_clang_format
 
 # Add $HOME/.local/bin to PATH if not already
 if [[ ":$PATH:" != *":$HOME/.local/bin:"* ]]; then
     echo -e "\n${BLUE}Adding $HOME/.local/bin to PATH${NC}"
     export PATH="$HOME/.local/bin:$PATH"
-    echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.bashrc
+    # Only modify .bashrc if it exists and we're in an interactive shell
+    if [ -f "$HOME/.bashrc" ] && [ -t 0 ]; then
+        grep -q 'export PATH="$HOME/.local/bin:$PATH"' "$HOME/.bashrc" || \
+        echo 'export PATH="$HOME/.local/bin:$PATH"' >> "$HOME/.bashrc"
+    fi
 fi
 
-# Install Swift Package Manager dependencies
-echo -e "\n${BLUE}Installing Swift Package Manager dependencies...${NC}"
-swift package resolve
+# Install SwiftLint and SwiftFormat
+install_swiftlint
+install_swiftformat
 
-echo -e "\n${GREEN}Setup completed successfully!${NC}"
-echo -e "${BLUE}You can now run the project in Xcode or use the Makefile to build it.${NC}"
+# Just check for clang-format without trying to install
+check_clang_format || true
+
+# Check for Swift Package Manager
+if command -v swift &> /dev/null; then
+    # Install Swift Package Manager dependencies
+    echo -e "\n${BLUE}Resolving Swift Package Manager dependencies...${NC}"
+    swift package resolve || {
+        echo -e "${YELLOW}Warning: Failed to resolve Swift packages.${NC}"
+        echo -e "${YELLOW}This may be normal in CI environments or if Swift is not fully set up.${NC}"
+    }
+else
+    echo -e "\n${YELLOW}Swift compiler not found.${NC}"
+    echo -e "${YELLOW}Swift package dependencies will not be resolved.${NC}"
+fi
+
+echo -e "\n${GREEN}Setup completed!${NC}"
+echo -e "${BLUE}You can now use swiftformat and swiftlint commands for code formatting and linting.${NC}"
