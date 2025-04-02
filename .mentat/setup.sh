@@ -12,6 +12,14 @@ echo -e "${BLUE}==========================================${NC}"
 echo -e "${BLUE}   Backdoor Development Setup Script      ${NC}"
 echo -e "${BLUE}==========================================${NC}"
 
+# Detect if we're running in a container (simplified check)
+IN_CONTAINER=0
+if [ -f "/.dockerenv" ] || grep -q docker /proc/1/cgroup 2>/dev/null; then
+    IN_CONTAINER=1
+    echo -e "${YELLOW}Container environment detected.${NC}"
+    echo -e "${YELLOW}Only basic setup will be performed.${NC}"
+fi
+
 # Create .gitignore if not exists
 if [ ! -f .gitignore ]; then
     echo -e "\n${BLUE}Creating .gitignore file...${NC}"
@@ -104,138 +112,46 @@ GITIGNORE_CONTENT
     echo -e "${GREEN}Created .gitignore file${NC}"
 fi
 
-# Copy configuration files
+# Copy configuration files - Modified to remove header strip from .swiftformat
 echo -e "\n${BLUE}Setting up configuration files...${NC}"
 cp -v Clean/.swiftlint.yml .swiftlint.yml
-cp -v Clean/.swiftformat .swiftformat
 cp -v Clean/.clang-format .clang-format
+
+# For .swiftformat, remove the header strip option to preserve license headers
+if [ -f Clean/.swiftformat ]; then
+    echo -e "${BLUE}Creating .swiftformat without header strip to preserve license headers...${NC}"
+    grep -v "\-\-header strip" Clean/.swiftformat > .swiftformat || cp -v Clean/.swiftformat .swiftformat
+    echo -e "${GREEN}.swiftformat created without header strip option${NC}"
+else
+    echo -e "${YELLOW}No .swiftformat found in Clean directory, creating default...${NC}"
+    cat > .swiftformat << 'SWIFTFORMAT_CONTENT'
+--indent 4
+--indentcase true
+--trimwhitespace always
+--importgrouping alphabetized
+--semicolons never
+--disable redundantSelf
+SWIFTFORMAT_CONTENT
+    echo -e "${GREEN}Created default .swiftformat without header strip${NC}"
+fi
+
 echo -e "${GREEN}Configuration files copied${NC}"
 
-# Function to install SwiftLint
-install_swiftlint() {
-    echo -e "\n${BLUE}Installing SwiftLint...${NC}"
-    
-    # Check if SwiftLint is already available
-    if command -v swiftlint &> /dev/null; then
-        echo -e "${GREEN}SwiftLint already installed${NC}"
-        return
-    fi
-    
-    # Try to download pre-built binary
-    LATEST_SWIFTLINT_URL=$(curl -s https://api.github.com/repos/realm/SwiftLint/releases/latest | grep browser_download_url | grep portable | cut -d '"' -f 4)
-    
-    if [ ! -z "$LATEST_SWIFTLINT_URL" ]; then
-        echo "Downloading SwiftLint from $LATEST_SWIFTLINT_URL"
-        curl -L "$LATEST_SWIFTLINT_URL" -o swiftlint.zip
-        unzip -o swiftlint.zip
-        if [ -f "swiftlint" ]; then
-            chmod +x swiftlint
-            mkdir -p $HOME/.local/bin
-            mv swiftlint $HOME/.local/bin/
-            rm -f swiftlint.zip LICENSE 2>/dev/null || true
-            export PATH="$HOME/.local/bin:$PATH"
-            echo -e "${GREEN}SwiftLint installed successfully${NC}"
-        else
-            echo -e "${RED}Error: SwiftLint binary not found in the downloaded package${NC}"
-        fi
-    else
-        echo -e "${RED}Error: Could not find SwiftLint download URL${NC}"
-    fi
-}
+# Skip installation in containers, just provide guidance
+if [ $IN_CONTAINER -eq 1 ]; then
+    echo -e "\n${YELLOW}Skipping tool installation in container environment.${NC}"
+    echo -e "${BLUE}When running locally, the development tools needed are:${NC}"
+    echo -e "  - ${GREEN}SwiftLint${NC}: for linting Swift code"
+    echo -e "  - ${GREEN}SwiftFormat${NC}: for formatting Swift code"
+    echo -e "  - ${GREEN}clang-format${NC}: for formatting C++/Objective-C code"
+    echo -e "\n${BLUE}You can install these tools using:${NC}"
+    echo -e "  - On macOS: ${GREEN}brew install swiftlint swiftformat clang-format${NC}"
+    echo -e "  - On Linux: Use package manager or download binaries"
+    echo -e "\n${GREEN}Setup completed with configuration files only.${NC}"
+    exit 0
+fi
 
-# Function to install SwiftFormat
-install_swiftformat() {
-    echo -e "\n${BLUE}Installing SwiftFormat...${NC}"
-    
-    # Check if SwiftFormat is already available
-    if command -v swiftformat &> /dev/null; then
-        echo -e "${GREEN}SwiftFormat already installed${NC}"
-        return
-    fi
-    
-    # Try direct binary download first
-    LATEST_SWIFTFORMAT_URL=$(curl -s https://api.github.com/repos/nicklockwood/SwiftFormat/releases/latest | \
-        grep browser_download_url | \
-        grep -v artifactbundle | \
-        grep -v .zip | \
-        grep -E "swiftformat$" | \
-        head -n 1 | \
-        cut -d '"' -f 4)
-    
-    if [ ! -z "$LATEST_SWIFTFORMAT_URL" ]; then
-        echo "Found direct SwiftFormat binary at $LATEST_SWIFTFORMAT_URL"
-        curl -L "$LATEST_SWIFTFORMAT_URL" -o swiftformat
-        chmod +x swiftformat
-        mkdir -p $HOME/.local/bin
-        mv swiftformat $HOME/.local/bin/
-        export PATH="$HOME/.local/bin:$PATH"
-        echo -e "${GREEN}SwiftFormat installed successfully${NC}"
-        return
-    fi
-    
-    # Try artifact bundle as fallback
-    echo "No direct binary found, trying artifact bundle..."
-    BUNDLE_URL=$(curl -s https://api.github.com/repos/nicklockwood/SwiftFormat/releases/latest | \
-        grep browser_download_url | \
-        grep artifactbundle | \
-        head -n 1 | \
-        cut -d '"' -f 4)
-    
-    if [ ! -z "$BUNDLE_URL" ]; then
-        echo "Found SwiftFormat artifact bundle at $BUNDLE_URL"
-        TEMP_DIR=$(mktemp -d)
-        curl -L "$BUNDLE_URL" -o "$TEMP_DIR/swiftformat.zip"
-        unzip -o "$TEMP_DIR/swiftformat.zip" -d "$TEMP_DIR"
-        
-        # Try to find the correct binary for this platform
-        if [[ "$(uname)" == "Darwin" ]]; then
-            # macOS
-            SWIFTFORMAT_BIN=$(find "$TEMP_DIR" -name "swiftformat" -type f | grep -v linux | head -n 1)
-        else
-            # Linux - try to match architecture
-            if [[ "$(uname -m)" == "aarch64" || "$(uname -m)" == "arm64" ]]; then
-                SWIFTFORMAT_BIN=$(find "$TEMP_DIR" -name "*aarch64*" -type f | head -n 1)
-            else
-                SWIFTFORMAT_BIN=$(find "$TEMP_DIR" -name "*linux*" -type f | grep -v aarch64 | head -n 1)
-            fi
-        fi
-        
-        if [ ! -z "$SWIFTFORMAT_BIN" ]; then
-            echo "Found binary at $SWIFTFORMAT_BIN"
-            chmod +x "$SWIFTFORMAT_BIN"
-            mkdir -p $HOME/.local/bin
-            cp "$SWIFTFORMAT_BIN" "$HOME/.local/bin/swiftformat"
-            export PATH="$HOME/.local/bin:$PATH"
-            echo -e "${GREEN}SwiftFormat installed successfully${NC}"
-        else
-            echo -e "${RED}Error: Could not find SwiftFormat binary in artifact bundle${NC}"
-        fi
-        
-        rm -rf "$TEMP_DIR"
-    else
-        echo -e "${RED}Error: Could not find SwiftFormat download URL${NC}"
-    fi
-}
-
-# Function to check for clang-format (without trying to install)
-check_clang_format() {
-    echo -e "\n${BLUE}Checking for clang-format...${NC}"
-    
-    # Check if clang-format is already available
-    if command -v clang-format &> /dev/null; then
-        echo -e "${GREEN}clang-format is available${NC}"
-        return 0
-    else
-        echo -e "${YELLOW}clang-format is not available.${NC}"
-        echo -e "${YELLOW}When running locally, you can install it with:${NC}"
-        echo -e "  - On Debian/Ubuntu: apt-get install clang-format"
-        echo -e "  - On macOS: brew install clang-format"
-        echo -e "  - On CentOS/RHEL: yum install clang-tools-extra"
-        return 1
-    fi
-}
-
-# Add $HOME/.local/bin to PATH if not already
+# Add $HOME/.local/bin to PATH if not already and not in a container
 if [[ ":$PATH:" != *":$HOME/.local/bin:"* ]]; then
     echo -e "\n${BLUE}Adding $HOME/.local/bin to PATH${NC}"
     export PATH="$HOME/.local/bin:$PATH"
@@ -246,25 +162,6 @@ if [[ ":$PATH:" != *":$HOME/.local/bin:"* ]]; then
     fi
 fi
 
-# Install SwiftLint and SwiftFormat
-install_swiftlint
-install_swiftformat
-
-# Just check for clang-format without trying to install
-check_clang_format || true
-
-# Check for Swift Package Manager
-if command -v swift &> /dev/null; then
-    # Install Swift Package Manager dependencies
-    echo -e "\n${BLUE}Resolving Swift Package Manager dependencies...${NC}"
-    swift package resolve || {
-        echo -e "${YELLOW}Warning: Failed to resolve Swift packages.${NC}"
-        echo -e "${YELLOW}This may be normal in CI environments or if Swift is not fully set up.${NC}"
-    }
-else
-    echo -e "\n${YELLOW}Swift compiler not found.${NC}"
-    echo -e "${YELLOW}Swift package dependencies will not be resolved.${NC}"
-fi
-
 echo -e "\n${GREEN}Setup completed!${NC}"
-echo -e "${BLUE}You can now use swiftformat and swiftlint commands for code formatting and linting.${NC}"
+echo -e "${BLUE}You can now run formatting and linting tools for your Swift and C++/Objective-C code.${NC}"
+echo -e "${GREEN}Note: License headers will be preserved during formatting.${NC}"

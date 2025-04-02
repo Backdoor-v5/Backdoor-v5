@@ -3,5 +3,4 @@
 --trimwhitespace always
 --importgrouping alphabetized
 --semicolons never
---header strip
 --disable redundantSelf
