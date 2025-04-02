@@ -775,3 +775,70 @@ excluded:
   - Pods
   - .build
   - .swiftpm
+    fi
+}
+
+# Setup command - install all tools and create configs
+setup_all() {
+    echo -e "\n${BLUE}=== Setting up development environment ===${NC}"
+    install_swiftlint
+    install_swiftformat
+    install_clang_format
+    setup_configurations
+    setup_path
+    update_gitignore
+    echo -e "\n${GREEN}Setup completed! You can now use the other commands to format and lint your code.${NC}"
+}
+
+# Format all code
+format_all() {
+    echo -e "\n${BLUE}=== Formatting all code ===${NC}"
+    setup_path
+    format_swift
+    format_cpp
+    echo -e "\n${GREEN}Formatting completed!${NC}"
+}
+
+# Lint all code
+lint_all() {
+    echo -e "\n${BLUE}=== Linting code ===${NC}"
+    setup_path
+    lint_swift
+    echo -e "\n${GREEN}Linting completed!${NC}"
+}
+
+# Main script execution logic
+if [ $# -eq 0 ]; then
+    # No arguments, show usage
+    print_usage
+    exit 0
+fi
+
+# Process command
+command=$1
+
+case "$command" in
+    setup)
+        setup_all
+        ;;
+    format)
+        format_all
+        ;;
+    lint)
+        lint_all
+        ;;
+    check)
+        format_all
+        lint_all
+        ;;
+    help)
+        print_usage
+        ;;
+    *)
+        echo -e "${RED}Error: Unknown command '$command'${NC}"
+        print_usage
+        exit 1
+        ;;
+esac
+
+exit 0
