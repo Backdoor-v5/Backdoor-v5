@@ -177,31 +177,54 @@ class BackdoorAIClient {
     
     // MARK: - Model Management
     
-    /// Get information about the latest available model using enhanced NetworkManager
+    /// Get information about the latest available model
     func getLatestModelInfo() async throws -> ModelInfo {
-        // Use the BackdoorAPI enum with Moya for type-safe requests
-        Debug.shared.log(message: "Fetching latest model info with enhanced networking", type: .info)
+        Debug.shared.log(message: "Fetching latest model info with direct networking", type: .info)
         
-        // Use the Network Manager to make the request
+        // Construct the URL for latest model info
+        let latestModelURL = baseURL.appendingPathComponent(latestModelEndpoint)
+        
+        // Create URL request
+        var request = URLRequest(url: latestModelURL)
+        request.httpMethod = "GET"
+        
+        // Add headers
+        headers.forEach { request.addValue($0.value, forHTTPHeaderField: $0.key) }
+        
         do {
-            return try await NetworkManager.shared.request(.getLatestModel, type: ModelInfo.self)
-        } catch {
-            // Enhanced error handling with detailed logging
-            if let networkError = error as? NetworkError {
-                switch networkError {
-                case .httpError(let statusCode):
-                    Debug.shared.log(message: "Server returned error status: \(statusCode)", type: .error)
+            // Perform the request
+            let (data, response) = try await URLSession.shared.data(for: request)
+            
+            // Check response status
+            guard let httpResponse = response as? HTTPURLResponse else {
+                Debug.shared.log(message: "Invalid response format", type: .error)
+                throw APIError.invalidResponse
+            }
+            
+            // Check status code
+            guard (200...299).contains(httpResponse.statusCode) else {
+                Debug.shared.log(message: "Server returned error status: \(httpResponse.statusCode)", type: .error)
+                
+                if httpResponse.statusCode == 404 {
+                    throw APIError.modelNotFound
+                } else if httpResponse.statusCode >= 500 {
                     throw APIError.invalidResponse
-                case .decodingError(let decodingError):
-                    Debug.shared.log(message: "Failed to decode model info: \(decodingError)", type: .error)
-                    throw APIError.decodingFailed
-                case .noData:
-                    Debug.shared.log(message: "No data received from server", type: .error)
+                } else {
                     throw APIError.invalidResponse
-                default:
-                    Debug.shared.log(message: "Network error: \(networkError.localizedDescription)", type: .error)
-                    throw APIError.networkError(error)
                 }
+            }
+            
+            // Decode the response
+            do {
+                let modelInfo = try JSONDecoder().decode(ModelInfo.self, from: data)
+                return modelInfo
+            } catch {
+                Debug.shared.log(message: "Failed to decode model info: \(error)", type: .error)
+                throw APIError.decodingFailed
+            }
+        } catch {
+            if error is APIError {
+                throw error // Rethrow our custom APIErrors
             } else {
                 Debug.shared.log(message: "Network error during model info request: \(error)", type: .error)
                 throw APIError.networkError(error)
@@ -209,9 +232,9 @@ class BackdoorAIClient {
         }
     }
     
-    /// Download a specific model version from the server using enhanced NetworkManager
+    /// Download a specific model version from the server
     func downloadModel(version: String) async throws -> URL {
-        Debug.shared.log(message: "Downloading model version \(version) with enhanced networking", type: .info)
+        Debug.shared.log(message: "Downloading model version \(version) with direct networking", type: .info)
         
         // Create temporary file to store the model
         let tempDir = FileManager.default.temporaryDirectory
@@ -222,26 +245,51 @@ class BackdoorAIClient {
             try FileManager.default.removeItem(at: modelURL)
         }
         
-        // Use NetworkManager to download file with retry capabilities
+        // Construct download URL
+        let downloadURL = baseURL.appendingPathComponent(modelDownloadEndpoint).appendingPathComponent(version)
+        var request = URLRequest(url: downloadURL)
+        
+        // Add headers
+        headers.forEach { request.addValue($0.value, forHTTPHeaderField: $0.key) }
+        
         do {
             // Show download progress with UI notification
             let notificationName = Notification.Name("ModelDownloadProgress")
             NotificationCenter.default.post(name: notificationName, object: nil, userInfo: ["status": "started", "version": version])
             
-            // Use NetworkManager to download the file
-            let downloadedURL = try await NetworkManager.shared.downloadFile(
-                .downloadModel(version: version),
-                destinationURL: modelURL
-            )
+            // Download file with URLSession
+            let (tempFileURL, response) = try await URLSession.shared.download(for: request)
+            
+            // Check response status
+            guard let httpResponse = response as? HTTPURLResponse else {
+                Debug.shared.log(message: "Invalid response format during download", type: .error)
+                throw APIError.invalidResponse
+            }
+            
+            // Check status code
+            guard (200...299).contains(httpResponse.statusCode) else {
+                Debug.shared.log(message: "Server returned error status during download: \(httpResponse.statusCode)", type: .error)
+                
+                if httpResponse.statusCode == 404 {
+                    throw APIError.modelNotFound
+                } else if httpResponse.statusCode >= 500 {
+                    throw APIError.invalidResponse
+                } else {
+                    throw APIError.downloadFailed
+                }
+            }
+            
+            // Move downloaded file to the target location
+            try FileManager.default.moveItem(at: tempFileURL, to: modelURL)
             
             // Verify the downloaded file integrity with CRC32 checksum
-            let fileData = try Data(contentsOf: downloadedURL)
+            let fileData = try Data(contentsOf: modelURL)
             let checksum = CryptoHelper.shared.crc32(of: fileData)
             
             Debug.shared.log(message: "Model downloaded successfully with checksum: \(checksum)", type: .info)
             NotificationCenter.default.post(name: notificationName, object: nil, userInfo: ["status": "completed", "version": version])
             
-            return downloadedURL
+            return modelURL
         } catch {
             // Enhanced error handling
             Debug.shared.log(message: "Failed to download model: \(error)", type: .error)
@@ -253,24 +301,11 @@ class BackdoorAIClient {
                 userInfo: ["status": "failed", "version": version, "error": error.localizedDescription]
             )
             
-            // If it's a network error, provide more detailed diagnostics
-            if let networkError = error as? NetworkError {
-                switch networkError {
-                case .httpError(let statusCode):
-                    Debug.shared.log(message: "Server returned error status during download: \(statusCode)", type: .error)
-                    
-                    // Handle specific status codes
-                    if statusCode == 404 {
-                        throw APIError.modelNotFound
-                    } else if statusCode >= 500 {
-                        throw APIError.invalidResponse
-                    }
-                default:
-                    break
-                }
+            if error is APIError {
+                throw error // Rethrow our custom APIErrors
+            } else {
+                throw APIError.downloadFailed
             }
-            
-            throw APIError.downloadFailed
         }
     }
     

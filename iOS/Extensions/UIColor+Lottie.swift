@@ -5,12 +5,11 @@
 // Backdoor App Signer is proprietary software. You may not use, modify, or distribute it except as expressly permitted under the terms of the Proprietary Software License.
 
 import UIKit
-import Lottie
 
-// Extension to help with using UIColors in Lottie animations
+// Extension with color utilities (previously used for Lottie animations)
 extension UIColor {
-    // Convert UIColor to Lottie Color value
-    var lottieColorValue: ColorValue {
+    // Get color components as a tuple
+    var rgbaComponents: (red: CGFloat, green: CGFloat, blue: CGFloat, alpha: CGFloat) {
         var red: CGFloat = 0
         var green: CGFloat = 0
         var blue: CGFloat = 0
@@ -19,7 +18,15 @@ extension UIColor {
         // Get RGBA components
         getRed(&red, green: &green, blue: &blue, alpha: &alpha)
         
-        // Return Lottie color value in expected format
-        return ColorValue(r: Double(red), g: Double(green), b: Double(blue), a: Double(alpha))
+        return (red: red, green: green, blue: blue, alpha: alpha)
+    }
+    
+    // Convert to hex string
+    var hexString: String {
+        let components = rgbaComponents
+        return String(format: "#%02X%02X%02X", 
+                     Int(components.red * 255), 
+                     Int(components.green * 255), 
+                     Int(components.blue * 255))
     }
 }
