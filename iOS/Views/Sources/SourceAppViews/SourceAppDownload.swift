@@ -89,7 +89,7 @@ extension SourceAppViewController {
                 Debug.shared.log(message: "Download completed with checksum: \(checksum)", type: .info)
                 
                 // Extract and process the bundle
-                cell.appDownload?.extractCompressedBundle(packageURL: downloadedURL) { [weak self] targetBundle, error in
+                cell.appDownload?.extractCompressedBundle(packageURL: downloadedURL.path) { [weak self] targetBundle, error in
                     guard let self = self else { return }
                     
                     // Remove animation when processing is complete
